@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('subpoena');
+            $table->json('subpoena');
             $table->string('state');
             $table->integer('value_cia')->nullable();
             $table->integer('value_transit')->nullable();
+            $table->string('document_status_account')->nullable();
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('value_commission')->nullable();
             $table->integer('total_value')->nullable();

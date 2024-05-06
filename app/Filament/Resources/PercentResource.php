@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PercentResource extends Resource
 {
     protected static ?string $model = Percent::class;
-    protected static ?string $navigationLabel = 'Porcentajes de procesos';
+    protected static ?string $navigationLabel = 'Configuración de Procesos';
     protected static ?string $navigationIcon = 'heroicon-o-chart-pie';
     protected static ?string $navigationGroup = 'Configuración';
 
@@ -58,6 +58,15 @@ class PercentResource extends Resource
                         ->numeric()
                         ->default(null),
                 ]),
+                Forms\Components\Section::make('Precio tabulado')
+                ->columns(1)
+                ->schema([
+                    Forms\Components\TextInput::make('tabulated')
+                        ->label('Tabulado')
+                        ->suffix('$')
+                        ->numeric()
+                        ->default(null),
+                ]),
             ]);
     }
 
@@ -87,6 +96,10 @@ class PercentResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('subpoena')
                     ->label('Comparendo')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tabulated')
+                    ->label('Tabulado')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

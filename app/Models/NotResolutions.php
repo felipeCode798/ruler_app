@@ -11,7 +11,9 @@ class NotResolutions extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'subpoena','cc', 'category', 'value_received','value','state', 'processor_id', 'value_commission', 'total_value', 'observations','paid'];
+    protected $fillable = ['user_id', 'subpoena','cc', 'category_id', 'value_received','value','state', 'document_status_account', 'date_resolution','processor_id', 'value_commission', 'total_value', 'observations','paid'];
+
+    protected $casts = ['subpoena' => 'array'];
 
     protected $appends = ['payments_sum'];
 
@@ -39,4 +41,15 @@ class NotResolutions extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
+    public function suppliernotresolutionpayments(): HasMany
+    {
+        return $this->hasMany(SupplierNotResolutionPayments::class);
+    }
+
+    public function getSupplierPaymentsSumAttribute()
+    {
+        return $this->suppliernotresolutionpayments()->sum('value');
+    }
+
 }

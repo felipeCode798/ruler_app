@@ -11,7 +11,9 @@ class CoerciveCollection extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id','cc', 'subpoena','value_received','value', 'state', 'processor_id', 'value_commission', 'total_value', 'observations','paid'];
+    protected $fillable = ['user_id','cc', 'subpoena','value_received','value', 'document_status_account','state', 'processor_id', 'value_commission', 'total_value', 'observations','paid'];
+
+    protected $casts = ['subpoena' => 'array'];
 
     protected $appends = ['payments_sum'];
 
@@ -33,5 +35,15 @@ class CoerciveCollection extends Model
     public function getPaymentsSumAttribute()
     {
         return $this->coercivecollectionpayments()->sum('value');
+    }
+
+    public function suppliercoercivecollectionpayments(): HasMany
+    {
+        return $this->hasMany(SupplierCoercivecollectionPayments::class);
+    }
+
+    public function getSupplierPaymentsSumAttribute()
+    {
+        return $this->suppliercoercivecollectionpayments()->sum('value');
     }
 }

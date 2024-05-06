@@ -11,7 +11,9 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'subpoena', 'value_cia', 'value_transit', 'state', 'processor_id', 'value_commission', 'total_value', 'observations', 'paid'];
+    protected $fillable = ['user_id', 'category_id','subpoena', 'value_cia', 'value_transit', 'state', 'document_status_account', 'processor_id', 'value_commission', 'total_value', 'observations', 'paid'];
+
+    protected $casts = ['subpoena' => 'array'];
 
     protected $appends = ['payments_sum'];
 
@@ -33,5 +35,20 @@ class Course extends Model
     public function getPaymentsSumAttribute()
     {
         return $this->coursepayments()->sum('value');
+    }
+
+    public function suppliercoursepayments(): HasMany
+    {
+        return $this->hasMany(SupplierCoursePayments::class);
+    }
+
+    public function getPaymentsSumSupplierAttribute()
+    {
+        return $this->suppliercoursepayments()->sum('value');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }

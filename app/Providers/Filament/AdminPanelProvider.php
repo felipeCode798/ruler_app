@@ -57,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                //FilamentSpatieRolesPermissionsPlugin::make(),
+                FilamentSpatieRolesPermissionsPlugin::make(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
             ]
             )

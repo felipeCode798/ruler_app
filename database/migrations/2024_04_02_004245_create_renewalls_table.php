@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('value_exams');
             $table->integer('value_impression');
             $table->string('state');
+            $table->string('document_status_account')->nullable();
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('value_commission');
             $table->integer('total_value')->nullable();

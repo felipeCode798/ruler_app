@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('payment_agreements')->nullable();
             $table->integer('prescriptions')->nullable();
             $table->integer('subpoena')->nullable();
+            $table->integer('tabulated')->nullable();
             $table->timestamps();
         });
     }

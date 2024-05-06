@@ -11,7 +11,7 @@ class Renewall extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'category', 'medical_exams', 'impression', 'value_exams', 'value_impression', 'state', 'observations','processor_id','value_commission', 'total_value'];
+    protected $fillable = ['user_id', 'category', 'medical_exams', 'impression', 'value_exams', 'value_impression', 'state', 'observations', 'document_status_account','processor_id','value_commission', 'total_value'];
 
     protected $casts = [
         'category' => 'array',
@@ -37,5 +37,15 @@ class Renewall extends Model
     public function getPaymentsSumAttribute()
     {
         return $this->renewallpayments()->sum('value');
+    }
+
+    public function supplierrenewallpayments(): HasMany
+    {
+        return $this->hasMany(SupplierRenewallPayments::class);
+    }
+
+    public function getSupplierPaymentsSumAttribute()
+    {
+        return $this->supplierrenewallpayments()->sum('value');
     }
 }

@@ -23,6 +23,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
+use App\Models\Percent;
 
 class SubpoenaResource extends Resource
 {
@@ -183,7 +184,7 @@ class SubpoenaResource extends Resource
                         ->columnSpan(2)
                         ->maxLength(255),
                     Forms\Components\TextInput::make('value_received')
-                        >prefix('$')
+                        ->prefix('$')
                         ->label('Valor Comparendo')
                         ->required()
                         ->maxLength(255)

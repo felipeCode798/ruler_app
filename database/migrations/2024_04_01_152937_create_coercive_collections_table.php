@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('cc');
-            $table->string('subpoena');
+            $table->json('subpoena');
             $table->string('state');
             $table->integer('value_received');
             $table->integer('value');
+            $table->string('document_status_account');
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('value_commission');
             $table->integer('total_value');

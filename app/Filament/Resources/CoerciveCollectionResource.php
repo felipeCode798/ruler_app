@@ -28,6 +28,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
 use App\Models\Percent;
+use Filament\Forms\Components\TagsInput;
 
 class CoerciveCollectionResource extends Resource
 {
@@ -182,11 +183,11 @@ class CoerciveCollectionResource extends Resource
                         ->label('CC')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('subpoena')
+                    Forms\Components\TagsInput::make('subpoena')
                         ->label('Comparendo')
-                        ->required()
+                        ->placeholder('Seleccione una etiqueta')
                         ->columnSpan(2)
-                        ->maxLength(255),
+                        ->required(),
                     Forms\Components\TextInput::make('value_received')
                         ->label('Valor Comparendo')
                         ->prefix('$')
@@ -224,6 +225,19 @@ class CoerciveCollectionResource extends Resource
                             calculateTotalValues($set, $get);
                         }),
                 ]),
+                Forms\Components\Section::make('Documentacion del Cobro Coactivo')
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\FileUpload::make('document_status_account')
+                            ->label('Estado de Cuenta')
+                            ->required()
+                            ->acceptedFileTypes(['image/*', 'application/pdf'])
+                            ->preserveFilenames()
+                            ->downloadable()
+                            ->previewable(false)
+                            ->uploadingMessage('Cargando Archivo...')
+                            ->maxSize(2048),
+                    ]),
                 Forms\Components\Section::make('Información del Tramitador')
                 ->columns(2)
                 ->schema([
@@ -368,6 +382,7 @@ class CoerciveCollectionResource extends Resource
     {
         return [
             RelationManagers\CoerciveCollectionPaymentsRelationManager::class,
+            RelationManagers\SupplierCoercivecollectionPaymentsRelationManager::class,
         ];
     }
 

@@ -25,6 +25,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
+use App\Models\LicensesSetupCategory;
 
 class RenewallResource extends Resource
 {
@@ -34,6 +35,20 @@ class RenewallResource extends Resource
 
     public static function form(Form $form): Form
     {
+
+        function calculateTotalCategory(Set $set, Get $get) {
+            $category = $get('category');
+            $total = 0;
+
+            foreach ($category as $value) {
+                $total += $value;
+            }
+
+            $set('total_value', $total);
+        }
+
+
+
         function calculateTotalValues(Set $set, Get $get) {
             $sumDebit = $get('value_exams') + $get('value_impression');
             $gainsTotal = ($get('total_value') - $sumDebit);
@@ -159,19 +174,18 @@ class RenewallResource extends Resource
             Forms\Components\Section::make('Seleccionar de Categoría')
                 ->columns(1)
                 ->schema([
-                Forms\Components\CheckboxList::make('category')
+                    Forms\Components\CheckboxList::make('category')
                     ->label('Categoría')
-                    ->options([
-                        'a2' => 'A2',
-                        'b1' => 'B1',
-                        'c1' => 'C1',
-                        'c2' => 'C2',
-                    ])
+                    ->options(LicensesSetupCategory::pluck('name','price_renewal')->toArray())
                     ->required()
                     ->columns(4)
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, Get $get) {
+                        calculateTotalCategory($set, $get);
+                    })
                     ->gridDirection('row'),
                 ]),
-                Forms\Components\Section::make('Complementos del Trámite')
+            Forms\Components\Section::make('Complementos del Trámite')
                 ->columns(3)
                 ->schema([
                     Forms\Components\Select::make('medical_exams')
@@ -179,8 +193,9 @@ class RenewallResource extends Resource
                     ->placeholder('Seleccione un estado')
                     ->options([
                         'pending' => 'Pendiente',
-                        'return' => 'Devuelto',
+                        'paid' => 'Pagado',
                         'ready' => 'Listo',
+                        'return' => 'Devuelto',
                     ])
                     ->columnSpan(2)
                     ->required(),
@@ -189,9 +204,9 @@ class RenewallResource extends Resource
                     ->placeholder('Seleccione un estado')
                     ->options([
                         'pending' => 'Pendiente',
-                        'return' => 'Devuelto',
-                        'undefined' => 'Indefinido',
+                        'paid' => 'Pagado',
                         'ready' => 'Listo',
+                        'return' => 'Devuelto',
                     ])
                     ->columnSpan(1/2)
                     ->required(),
@@ -245,6 +260,19 @@ class RenewallResource extends Resource
                     ),
 
                 ]),
+                Forms\Components\Section::make('Documentacion de la Renovación')
+                ->columns(1)
+                ->schema([
+                    Forms\Components\FileUpload::make('document_status_account')
+                        ->label('Estado de Cuenta')
+                        ->required()
+                        ->acceptedFileTypes(['image/*', 'application/pdf'])
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable(false)
+                        ->uploadingMessage('Cargando Archivo...')
+                        ->maxSize(2048),
+                ]),
                 Forms\Components\Section::make('Información del Tramitador')
                 ->columns(2)
                 ->schema([
@@ -275,7 +303,6 @@ class RenewallResource extends Resource
                         ->placeholder('Seleccione un estado')
                         ->options([
                             'pending' => 'Pendiente',
-                            'return' => 'Devuelto',
                             'ready' => 'Listo',
                         ])
                         ->required(),
@@ -383,6 +410,7 @@ class RenewallResource extends Resource
     {
         return [
             RelationManagers\RenewallpaymentsRelationManager::class,
+            RelationManagers\SupplierRenewallPaymentsRelationManager::class,
         ];
     }
 

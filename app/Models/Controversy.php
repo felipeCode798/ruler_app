@@ -11,7 +11,9 @@ class Controversy extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'appointment', 'code', 'window', 'document_dni', 'document_power', 'state', 'category','processor_id', 'value_commission', 'value_received','total_value', 'value','observations','paid'];
+    protected $fillable = ['user_id', 'appointment', 'code', 'subpoena','window', 'document_dni', 'document_power', 'document_status_account', 'state', 'category','processor_id', 'value_commission', 'value_received','total_value', 'value','observations','paid'];
+
+    protected $casts = ['subpoena' => 'array'];
 
     protected $appends = ['payments_sum', 'payments_sum_processor', 'payments_sum_penalty'];
 
@@ -33,6 +35,16 @@ class Controversy extends Model
     public function getPaymentsSumAttribute()
     {
         return $this->controversypayments()->sum('value');
+    }
+
+    public function suppliercontroversypayments(): HasMany
+    {
+        return $this->hasMany(SupplierControversyPayments::class);
+    }
+
+    public function getPaymentsSumSupplierAttribute()
+    {
+        return $this->suppliercontroversypayments()->sum('value');
     }
 
     public function processorcontroversypayments(): HasMany
@@ -59,4 +71,6 @@ class Controversy extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
+
 }

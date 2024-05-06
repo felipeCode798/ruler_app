@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('not_resolutions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('subpoena');
+            $table->json('subpoena');
             $table->string('cc');
             $table->string('category');
             $table->string('state');
+            $table->string('document_status_account');
+            $table->timestamp('date_resolution');
             $table->integer('value_received');
             $table->integer('value');
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('cascade');

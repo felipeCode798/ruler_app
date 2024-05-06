@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CoercivecollectionpaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'coercivecollectionpayments';
+    protected static ?string $title = 'Crear Pago de Cobro Coactivo';
 
     public function form(Form $form): Form
     {
@@ -48,7 +49,7 @@ class CoercivecollectionpaymentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->label('Agregar Pago'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

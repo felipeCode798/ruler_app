@@ -26,6 +26,7 @@ use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
 use App\Models\Category;
 
+
 class ControversyResource extends Resource
 {
     protected static ?string $model = Controversy::class;
@@ -72,8 +73,14 @@ class ControversyResource extends Resource
             $categoryId = $get('category_id');
             $category = Category::find($categoryId);
 
+            $transito = $category->value_transport ?? 0;
+            $cia = $category->value_cia_des ?? 0;
+
+            $value = $transito + $cia;
+
             if ($category) {
-                $set('value', $category->price);
+                $set('value', $value);
+                $set('value_received', $category->value_subpoena);
                 calculateTotalValues($set, $get);
             } else {
                 $set('value', 0);
@@ -133,17 +140,6 @@ class ControversyResource extends Resource
                 Forms\Components\Section::make('Información de la Controversia')
                 ->columns(3)
                 ->schema([
-                    Forms\Components\DateTimePicker::make('appointment')
-                        ->label('Cita')
-                        ->required(),
-                    Forms\Components\TextInput::make('code')
-                        ->label('Código')
-                        ->required()
-                        ->maxLength(255),
-                    Forms\Components\TextInput::make('window')
-                        ->label('Ventana')
-                        ->required()
-                        ->maxLength(255),
                     Forms\Components\Select::make('category_id')
                         ->label('Categoría')
                         ->placeholder('Seleccione una categoría')
@@ -157,12 +153,31 @@ class ControversyResource extends Resource
                         ->afterStateHydrated(function (Set $set, Get $get) {
                             updateValue($set, $get);
                         }),
+                    Forms\Components\TagsInput::make('subpoena')
+                        ->label('Comparendo')
+                        ->placeholder('Seleccione una etiqueta')
+                        ->columnSpan('full')
+                        ->required(),
                     Forms\Components\TextInput::make('value_received')
                         ->label('Valor Comparendo')
                         ->prefix('$')
                         ->required()
                         ->live()
                         ->numeric()
+                        ->disabled()
+                        ->afterStateUpdated(function (Set $set, Get $get) {
+                            calculateTotalValues($set, $get);
+                        })
+                        ->afterStateHydrated(function (Set $set, Get $get) {
+                            calculateTotalValues($set, $get);
+                        }),
+                    Forms\Components\TextInput::make('value')
+                        ->label('Valor')
+                        ->prefix('$')
+                        ->required()
+                        ->maxLength(255)
+                        ->disabled()
+                        ->live()
                         ->afterStateUpdated(function (Set $set, Get $get) {
                             calculateTotalValues($set, $get);
                         })
@@ -182,21 +197,21 @@ class ControversyResource extends Resource
                         ->afterStateHydrated(function (Set $set, Get $get) {
                             calculateTotalValues($set, $get);
                         }),
-                    Forms\Components\TextInput::make('value')
-                        ->label('Valor')
-                        ->prefix('$')
+                    Forms\Components\DateTimePicker::make('appointment')
+                        ->label('Cita')
+                        ->required(),
+                    Forms\Components\TextInput::make('code')
+                        ->label('Código')
                         ->required()
-                        ->maxLength(255)
-                        ->live()
-                        ->afterStateUpdated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
-                        })
-                        ->afterStateHydrated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
-                        })
+                        ->maxLength(255),
+                    Forms\Components\TextInput::make('window')
+                        ->label('Ventana')
+                        ->required()
+                        ->maxLength(255),
+
                 ]),
                 Forms\Components\Section::make('Documentacion de la Controversia')
-                ->columns(2)
+                ->columns(3)
                 ->schema([
                     Forms\Components\FileUpload::make('document_dni')
                         ->label('Documento de Identidad')
@@ -209,6 +224,15 @@ class ControversyResource extends Resource
                         ->maxSize(2048),
                     Forms\Components\FileUpload::make('document_power')
                         ->label('Poder')
+                        ->required()
+                        ->acceptedFileTypes(['image/*', 'application/pdf'])
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable(false)
+                        ->uploadingMessage('Cargando Archivo...')
+                        ->maxSize(2048),
+                    Forms\Components\FileUpload::make('document_status_account')
+                        ->label('Estado de Cuenta')
                         ->required()
                         ->acceptedFileTypes(['image/*', 'application/pdf'])
                         ->preserveFilenames()
@@ -231,7 +255,6 @@ class ControversyResource extends Resource
                         })
                         ->searchable()
                         ->preload()
-                        ->required()
                         ->live()
                         ->afterStateUpdated(function (Set $set, Get $get) {
                             calculateCommission($set, $get);
@@ -254,7 +277,7 @@ class ControversyResource extends Resource
                     ->placeholder('Seleccione un estado')
                     ->options([
                         'pending' => 'Pendiente',
-                        'return' => 'Devuelto',
+                        'in_process' => 'En Proceso',
                         'ready' => 'Listo',
                     ])
                     ->required(),
@@ -387,6 +410,7 @@ class ControversyResource extends Resource
         return [
             RelationManagers\ControversypaymentsRelationManager::class,
             RelationManagers\ProcessorcontroversypaymentsRelationManager::class,
+            RelationManagers\SupplierControversyPaymentsRelationManager::class,
             //RelationManagers\PenaltycontroversypaymentsRelationManager::class,
         ];
     }

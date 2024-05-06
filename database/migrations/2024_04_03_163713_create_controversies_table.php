@@ -15,12 +15,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('state');
+            $table->json('subpoena');
             $table->integer('category');
             $table->timestamp('appointment');
             $table->string('code');
             $table->string('window');
             $table->string('document_dni')->nullable();
             $table->string('document_power')->nullable();
+            $table->string('document_status_account')->nullable();
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('value_commission')->nullable();
             $table->integer('value_received')->nullable();

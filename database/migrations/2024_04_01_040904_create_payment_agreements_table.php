@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('cc');
-            $table->string('subpoena');
+            $table->json('subpoena');
             $table->string('state');
             $table->integer('value_received')->nullable();
             $table->integer('value')->nullable();

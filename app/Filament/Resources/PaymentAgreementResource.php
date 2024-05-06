@@ -23,6 +23,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Forms\Components\TagsInput;
 
 class PaymentAgreementResource extends Resource
 {
@@ -177,11 +178,11 @@ class PaymentAgreementResource extends Resource
                         ->required()
                         ->columnSpan(1)
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('subpoena')
+                    Forms\Components\TagsInput::make('subpoena')
                         ->label('Comparendo')
-                        ->required()
+                        ->placeholder('Seleccione una etiqueta')
                         ->columnSpan(2)
-                        ->maxLength(255),
+                        ->required(),
                     Forms\Components\TextInput::make('value_received')
                         ->label('Valor Comparendo')
                         ->prefix('$')

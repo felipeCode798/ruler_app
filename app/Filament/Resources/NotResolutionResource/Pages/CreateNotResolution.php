@@ -24,7 +24,7 @@ class CreateNotResolution extends CreateRecord
         $processorId = $data['processor_id'];
         $processor = User::find($processorId);
 
-        $create_at = Carbon::parse(CoerciveCollection::where('user_id', $clientUserId)->max('created_at'))->format('d/m/Y');
+        $create_at = Carbon::parse(NotResolution::where('user_id', $clientUserId)->max('created_at'))->format('d/m/Y');
 
         $dataToSend = array(
             'client' => $client->name,
@@ -34,7 +34,7 @@ class CreateNotResolution extends CreateRecord
             'invoice' => $client->dni.'-'.$clientUserId.'CTA',
             'subpoena' => $data['subpoena'],
             'cc' => $data['cc'],
-            'category' => $data['category'],
+            'category' => $data['category_id'],
             'state' => $data['state'],
             'value_received' => $data['value_received'],
             'value' => $data['value'],

@@ -16,8 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('sa');
             $table->string('cc');
-            $table->string('subpoena');
+            $table->json('subpoena');
             $table->string('state');
+            $table->foreignId('filter_id')->constrained('filter_configurations')->onDelete('cascade');
+            $table->foreignId('lawyer_id')->constrained('lawyers')->onDelete('cascade');
+            $table->string('document_status_account');
             $table->integer('value_received')->nullable();
             $table->integer('value')->nullable();
             $table->foreignId('processor_id')->nullable()->constrained('users')->onDelete('cascade');

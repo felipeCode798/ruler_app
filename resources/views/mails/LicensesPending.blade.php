@@ -269,7 +269,7 @@
         <tbody>
             <tr style="vertical-align: top">
                 <td style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-                    <div class="u-row-container" style="padding: 0px;background-image: url('https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-10.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
+                    <div class="u-row-container" style="padding: 0px;background-image: url('https://rulersoluciones.com/images/Logo_ruler_black.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
                         <div class="u-row" style="margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
                             <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
                                 <div class="u-col u-col-100" style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
@@ -278,7 +278,7 @@
                                             <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:30px 10px 251px 30px;font-family:arial,helvetica,sans-serif;" align="left">
+                                                        <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:120px 10px 251px 30px;font-family:arial,helvetica,sans-serif;" align="left">
                                                             <h1 class="v-text-align v-font-size" style="margin: 0px; color: #1b1c4a; line-height: 140%; text-align: left; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 40px; font-weight: 400;"><span><strong>Ruler</strong></span></h1>
                                                         </td>
                                                     </tr>
@@ -302,7 +302,7 @@
                                                                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                                                     <tr>
                                                                         <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
-                                                                            <img align="center" border="0" src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-3.png" alt="Barcode " title="Barcode " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 51.29px;" width="51.29" class="v-src-width v-src-max-width"/>
+                                                                            <img align="center" border="0" src="https://rulersoluciones.com/images/image-3.png" alt="Barcode " title="Barcode " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 27%;max-width: 51.29px;" width="51.29" class="v-src-width v-src-max-width"/>
                                                                         </td>
                                                                     </tr>
                                                                 </table>
@@ -333,7 +333,7 @@
                                                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                                                 <tr>
                                                                     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
-                                                                        <img align="center" border="0" src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-8.png" alt="Calendar " title="Calendar " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 17%;max-width: 34px;" width="34" class="v-src-width v-src-max-width"/>
+                                                                        <img align="center" border="0" src="https://rulersoluciones.com/images/image-8.png" alt="Calendar " title="Calendar " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 17%;max-width: 34px;" width="34" class="v-src-width v-src-max-width"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -365,7 +365,7 @@
                                                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                                                 <tr>
                                                                     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
-                                                                        <img align="center" border="0" src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-2.png" alt="Dollar " title="Dollar " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 28%;max-width: 50.41px;" width="50.41" class="v-src-width v-src-max-width"/>
+                                                                        <img align="center" border="0" src="https://rulersoluciones.com/images/image-2.png" alt="Dollar " title="Dollar " style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 28%;max-width: 50.41px;" width="50.41" class="v-src-width v-src-max-width"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -588,7 +588,7 @@
                                                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                                                 <tr>
                                                                     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
-                                                                        <img align="center" border="0" src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-1.gif" alt="Office Gif" title="Office Gif" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 56%;max-width: 306.88px;" width="306.88" class="v-src-width v-src-max-width"/>
+                                                                        <img align="center" border="0" src="https://rulersoluciones.com/images/image-1.gif" alt="Office Gif" title="Office Gif" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 56%;max-width: 306.88px;" width="306.88" class="v-src-width v-src-max-width"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>
@@ -643,7 +643,7 @@
                                                                             <tr style="vertical-align: top">
                                                                                 <td align="left" valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
                                                                                     <a href="https://www.facebook.com/Rulersolucionesjuridicas?mibextid=ZbWKwL" title="Facebook" target="_blank">
-                                                                                        <img src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-7.png" alt="Facebook" title="Facebook" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+                                                                                        <img src="https://rulersoluciones.com/images/image-7.png" alt="Facebook" title="Facebook" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
                                                                                     </a>
                                                                                 </td>
                                                                             </tr>
@@ -654,7 +654,7 @@
                                                                             <tr style="vertical-align: top">
                                                                                 <td align="left" valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
                                                                                     <a href="https://www.instagram.com/ruler_solucionesdetransito?igsh=MXNtdWphNzk0b3J6cw==" title="Instagram" target="_blank">
-                                                                                        <img src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-5.png" alt="Instagram" title="Instagram" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+                                                                                        <img src="https://rulersoluciones.com/images/image-5.png" alt="Instagram" title="Instagram" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
                                                                                     </a>
                                                                                 </td>
                                                                             </tr>
@@ -665,7 +665,7 @@
                                                                             <tr style="vertical-align: top">
                                                                                 <td align="left" valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
                                                                                     <a href="https://www.tiktok.com/@ruler_solucionestransito" title="TikTok" target="_blank">
-                                                                                        <img src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-6.png" alt="TikTok" title="TikTok" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+                                                                                        <img src="https://rulersoluciones.com/images/image-6.png" alt="TikTok" title="TikTok" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
                                                                                     </a>
                                                                                 </td>
                                                                             </tr>
@@ -676,7 +676,7 @@
                                                                             <tr style="vertical-align: top">
                                                                                 <td align="left" valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
                                                                                     <a href="https://api.whatsapp.com/send?phone=573104736884" title="WhatsApp" target="_blank">
-                                                                                        <img src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-4.png" alt="WhatsApp" title="WhatsApp" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+                                                                                        <img src="https://rulersoluciones.com/images/image-4.png" alt="WhatsApp" title="WhatsApp" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
                                                                                     </a>
                                                                                 </td>
                                                                             </tr>
@@ -708,7 +708,7 @@
                                                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                                                 <tr>
                                                                     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
-                                                                        <img align="center" border="0" src="https://clinicadientesdesable.com/wp-content/uploads/2024/04/image-9.png" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 14%;max-width: 81.2px;" width="81.2" class="v-src-width v-src-max-width"/>
+                                                                        <img align="center" border="0" src="https://rulersoluciones.com/images/Logo_ruler.png" alt="" title="" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 14%;max-width: 81.2px;" width="81.2" class="v-src-width v-src-max-width"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>

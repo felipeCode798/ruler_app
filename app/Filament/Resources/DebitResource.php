@@ -24,6 +24,9 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
 use App\Models\Percent;
+use App\Models\FilterConfiguration;
+use App\Models\Lawyer;
+use Filament\Forms\Components\TagsInput;
 
 class DebitResource extends Resource
 {
@@ -79,6 +82,16 @@ class DebitResource extends Resource
                 $set('total_gains', $get('total_value'));
             }
         }
+
+        function percesLawyer(Set $set, Get $get) {
+            $lawyer = Lawyer::find($get('lawyer_id'));
+            $commission = $lawyer->commission ?? 0;
+            $subpoena_value = $get('value_received') * ($commission / 100);
+            $subpoena_value = round($subpoena_value);
+
+            $set('value', $subpoena_value);
+        }
+
 
         return $form
             ->schema([
@@ -169,6 +182,32 @@ class DebitResource extends Resource
                         ->numeric()
                         ->maxLength(11),
                 ]),
+                Forms\Components\Section::make('Filtros Adeudo')
+                ->columns(2)
+                ->schema([
+                    Forms\Components\Select::make('filter_id')
+                        ->label('Filtro')
+                        ->placeholder('Seleccione un filtro')
+                        ->relationship('filter', 'filter_name')
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->live(),
+                    Forms\Components\Select::make('lawyer_id')
+                        ->label('Abogado')
+                        ->placeholder('Seleccione un filtro')
+                        ->relationship('lawyer', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function (Set $set, Get $get) {
+                            percesLawyer($set, $get);
+                        })
+                        ->afterStateHydrated(function (Set $set, Get $get) {
+                            percesLawyer($set, $get);
+                        }),
+                ]),
                 Forms\Components\Section::make('Información Adeudo')
                 ->columns(3)
                 ->schema([
@@ -180,10 +219,10 @@ class DebitResource extends Resource
                         ->label('CC')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\TextInput::make('subpoena')
+                    Forms\Components\TagsInput::make('subpoena')
                         ->label('Comparendo')
-                        ->required()
-                        ->maxLength(255),
+                        ->placeholder('Seleccione una etiqueta')
+                        ->required(),
                     Forms\Components\TextInput::make('value_received')
                         ->label('Valor Comparendo')
                         ->required()
@@ -204,9 +243,11 @@ class DebitResource extends Resource
                         ->prefix('$')
                         ->live()
                         ->afterStateUpdated(function (Set $set, Get $get) {
+                            percesLawyer($set, $get);
                             calculateTotalValues($set, $get);
                         })
                         ->afterStateHydrated(function (Set $set, Get $get) {
+                            percesLawyer($set, $get);
                             calculateTotalValues($set, $get);
                         }),
                     Forms\Components\TextInput::make('value')
@@ -222,6 +263,19 @@ class DebitResource extends Resource
                             calculateTotalValues($set, $get);
                         }),
                 ]),
+                Forms\Components\Section::make('Documentacion del Adeudo')
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\FileUpload::make('document_status_account')
+                            ->label('Estado de Cuenta')
+                            ->required()
+                            ->acceptedFileTypes(['image/*', 'application/pdf'])
+                            ->preserveFilenames()
+                            ->downloadable()
+                            ->previewable(false)
+                            ->uploadingMessage('Cargando Archivo...')
+                            ->maxSize(2048),
+                    ]),
                 Forms\Components\Section::make('Información del Tramitador')
                 ->columns(2)
                 ->schema([
@@ -235,7 +289,6 @@ class DebitResource extends Resource
                         })
                         ->searchable()
                         ->preload()
-                        ->required()
                         ->live()
                         ->afterStateUpdated(function (Set $set, Get $get) {
                             calculateCommission($set, $get);
@@ -246,7 +299,6 @@ class DebitResource extends Resource
                     Forms\Components\TextInput::make('value_commission')
                         ->prefix('$')
                         ->label('Comisión')
-                        ->required()
                         ->numeric()
                         ->maxLength(11),
                 ]),
@@ -370,6 +422,7 @@ class DebitResource extends Resource
     {
         return [
             RelationManagers\DebitpaymentsRelationManager::class,
+            RelationManagers\SupplierDebitPaymentsRelationManager::class,
         ];
     }
 

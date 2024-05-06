@@ -24,6 +24,7 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
 use App\Models\Category;
+use Filament\Forms\Components\TagsInput;
 
 class NotResolutionResource extends Resource
 {
@@ -174,10 +175,10 @@ class NotResolutionResource extends Resource
                 Forms\Components\Section::make('Información del Trámite Sin Resolución')
                 ->columns(3)
                 ->schema([
-                    Forms\Components\TextInput::make('subpoena')
+                    Forms\Components\TagsInput::make('subpoena')
                         ->label('Comparendo')
-                        ->required()
-                        ->maxLength(255),
+                        ->placeholder('Seleccione una etiqueta')
+                        ->required(),
                     Forms\Components\TextInput::make('cc')
                         ->label('SA')
                         ->required()
@@ -231,7 +232,24 @@ class NotResolutionResource extends Resource
                         ->afterStateHydrated(function (Set $set, Get $get) {
                             calculateTotalValues($set, $get);
                         }),
+                    Forms\Components\DatePicker::make('appointment')
+                        ->label('Fecha de Resolución')
+                        ->columnSpan('full')
+                        ->required(),
                 ]),
+                Forms\Components\Section::make('Documentacion Sin Resolución')
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\FileUpload::make('document_status_account')
+                            ->label('Estado de Cuenta')
+                            ->required()
+                            ->acceptedFileTypes(['image/*', 'application/pdf'])
+                            ->preserveFilenames()
+                            ->downloadable()
+                            ->previewable(false)
+                            ->uploadingMessage('Cargando Archivo...')
+                            ->maxSize(2048),
+                    ]),
                 Forms\Components\Section::make('Información del Tramitador')
                 ->columns(2)
                 ->schema([
@@ -372,6 +390,7 @@ class NotResolutionResource extends Resource
     {
         return [
             RelationManagers\NotresolutionpaymentsRelationManager::class,
+            RelationManagers\SupplierNotResolutionPaymentsRelationManager::class,
         ];
     }
 

@@ -24,7 +24,8 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
-
+use App\Models\Category;
+use Filament\Forms\Components\TagsInput;
 
 class CourseResource extends Resource
 {
@@ -39,19 +40,43 @@ class CourseResource extends Resource
         $roleOptions = $roles->pluck('name', 'id')->toArray();
 
         function calculateTotalValues(Set $set, Get $get) {
-            $sumDebit = $get('value_transit') + $get('value_cia');
+            $categoryId = $get('category_id');
+            $category = Category::find($categoryId);
+            $cia_des = $category->value_cia_des ?? 0;
+
+
+            $sumDebit = $get('value_transit') + $cia_des;
             $gainsTotal = ($get('total_value') - $sumDebit);
             $set('total_debit', $sumDebit);
             $set('total_gains', $gainsTotal);
         }
 
+        function updateValue(Set $set, Get $get) {
+            $categoryId = $get('category_id');
+            $category = Category::find($categoryId);
+
+            if ($category) {
+                $set('value_cia', $category->value_cia);
+                $set('value_transit', $category->value_transport);
+                $set('total_value', $category->price);
+                calculateTotalValues($set, $get);
+            } else {
+                $set('value_cia', 0);
+                $set('value_transit', 0);
+                $set('total_value', 0);
+            }
+        }
+
         function calculateCommission(Set $set, Get $get) {
             $processor = User::find($get('processor_id'));
+            $categoryId = $get('category_id');
+            $category = Category::find($categoryId);
+            $cia_des = $category->value_cia_des ?? 0;
 
             if ($processor) {
                 $commission = $processor->processingCommissions->first()->commission_course ?? 0;
 
-                $sumDebit = $get('value_transit') + $get('value_cia');
+                $sumDebit = $get('value_transit') + $cia_des;
                 $commissionTotal = ($get('total_value') - $sumDebit) * ($commission / 100);
                 $commissionTotal = round($commissionTotal);
 
@@ -62,7 +87,7 @@ class CourseResource extends Resource
             } else {
                 $set('value_commission', 0);
 
-                $sumDebit = $get('value_transit') + $get('value_cia');
+                $sumDebit = $get('value_transit') + $cia_des;
                 $set('total_debit', $sumDebit);
                 $set('total_gains', $get('total_value'));
             }
@@ -160,48 +185,55 @@ class CourseResource extends Resource
                 Forms\Components\Section::make('Información del Curso')
                 ->columns(3)
                 ->schema([
-                    Forms\Components\TextInput::make('subpoena')
-                        ->label('Comparendo')
+                    Forms\Components\Select::make('category_id')
+                        ->label('Categoría')
+                        ->placeholder('Seleccione una categoría')
+                        ->relationship('category', 'name')
                         ->required()
-                        ->maxLength(255)
-                        ->columnSpan('full'),
-                    Forms\Components\TextInput::make('total_value')
-                        ->prefix('$')
-                        ->label('Valor Comparendo')
-                        ->required()
-                        ->numeric()
                         ->live()
+                        ->columnSpan('full')
                         ->afterStateUpdated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
+                            updateValue($set, $get);
                         })
                         ->afterStateHydrated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
+                            updateValue($set, $get);
                         }),
+                    Forms\Components\TagsInput::make('subpoena')
+                        ->label('Comparendo')
+                        ->placeholder('Seleccione una etiqueta')
+                        ->columnSpan('full')
+                        ->required(),
                     Forms\Components\TextInput::make('value_cia')
                         ->prefix('$')
                         ->label('Valor CIA')
                         ->required()
                         ->numeric()
-                        ->live()
-                        ->afterStateUpdated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
-                        })
-                        ->afterStateHydrated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
-                        }),
+                        ->live(),
                     Forms\Components\TextInput::make('value_transit')
                         ->prefix('$')
                         ->label('Valor Tránsito')
                         ->required()
                         ->numeric()
-                        ->live()
-                        ->afterStateUpdated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
-                        })
-                        ->afterStateHydrated(function (Set $set, Get $get) {
-                            calculateTotalValues($set, $get);
-                        }),
-
+                        ->live(),
+                    Forms\Components\TextInput::make('total_value')
+                        ->prefix('$')
+                        ->label('Valor Comparendo')
+                        ->required()
+                        ->numeric()
+                        ->live(),
+                ]),
+                Forms\Components\Section::make('Documentacion del Curso')
+                ->columns(1)
+                ->schema([
+                    Forms\Components\FileUpload::make('document_status_account')
+                        ->label('Estado de Cuenta')
+                        ->required()
+                        ->acceptedFileTypes(['image/*', 'application/pdf'])
+                        ->preserveFilenames()
+                        ->downloadable()
+                        ->previewable(false)
+                        ->uploadingMessage('Cargando Archivo...')
+                        ->maxSize(2048),
                 ]),
                 Forms\Components\Section::make('Información del Tramitador')
                 ->columns(2)
@@ -218,13 +250,12 @@ class CourseResource extends Resource
                             calculateCommission($set, $get);
                         })
                         ->searchable()
-                        ->preload()
-                        ->required(),
+                        ->preload(),
                     Forms\Components\TextInput::make('value_commission')
                         ->prefix('$')
                         ->label('Comisión')
-                        ->required()
                         ->numeric()
+                        ->disabled()
                         ->maxLength(11),
                 ]),
                 Forms\Components\Section::make('Tramite del Curso')
@@ -235,7 +266,6 @@ class CourseResource extends Resource
                         ->placeholder('Seleccione un estado')
                         ->options([
                             'pending' => 'Pendiente',
-                            'return' => 'Devuelto',
                             'ready' => 'Listo',
                         ])
                         ->required(),
@@ -340,6 +370,7 @@ class CourseResource extends Resource
     {
         return [
             RelationManagers\CoursepaymentsRelationManager::class,
+            RelationManagers\SupplierCoursePaymentsRelationManager::class,
         ];
     }
 

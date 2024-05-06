@@ -23,6 +23,9 @@ use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Filament\Tables\Actions\ActionGroup;
+use App\Models\LicensesSetupCategory;
+use App\Models\SchoolSetup;
+use App\Models\PinsProcess;
 
 class LicenseResource extends Resource
 {
@@ -38,12 +41,47 @@ class LicenseResource extends Resource
         $roles = Role::whereIn('name', ['cliente'])->get();
         $roleOptions = $roles->pluck('name', 'id')->toArray();
 
+        $shcool = false;
+        $pins = false;
+
+        function hiddenValuesenListment(Set $set, Get $get, &$shcool, &$pins) {
+            $enlistment = $get('enlistment');
+
+            if ($enlistment === 'abono' || $enlistment === 'pagado') {
+                $shcool = true;
+                $pins = false;
+            } else if ($enlistment === 'guardado') {
+                $shcool = false;
+                $pins = false;
+            } else {
+                $shcool = false;
+                $pins = true;
+            }
+
+            $set('value_enlistment', $shcool ? '' : null);
+            $set('value_enlistment_payment', $shcool ? '' : null);
+            $set('pins_school_process', $pins ? '' : null);
+            $set('total_pins', $pins ? '' : null);
+        }
+
+        function calculateTotalCategory(Set $set, Get $get) {
+            $category = $get('category');
+            $total = 0;
+
+            foreach ($category as $value) {
+                $total += $value;
+            }
+
+            $set('value_enlistment', $total);
+        }
+
         function calculateTotalValues(Set $set, Get $get) {
             $value_exams = $get('value_exams');
             $value_impression = $get('value_impression');
+            $value_category = $get('value_enlistment');
             $value_license = $get('total_value');
 
-            $total_debit = $value_exams + $value_impression;
+            $total_debit = $value_exams + $value_impression + $value_category;
             $total_gaints = $value_license - $total_debit;
 
             $set('total_debit', $total_debit);
@@ -59,9 +97,10 @@ class LicenseResource extends Resource
 
                 $value_exams = $get('value_exams');
                 $value_impression = $get('value_impression');
+                $value_category = $get('value_enlistment');
                 $value_license = $get('total_value');
 
-                $total_debit = $value_exams + $value_impression;
+                $total_debit = $value_exams + $value_impression + $value_category;
                 $total_gaints = $value_license - $total_debit;
 
                 $commissionTotal = ($total_gaints) * ($commission / 100);
@@ -76,9 +115,10 @@ class LicenseResource extends Resource
 
                 $value_exams = $get('value_exams');
                 $value_impression = $get('value_impression');
+                $value_category = $get('value_enlistment');
                 $value_license = $get('total_value');
 
-                $total_debit = $value_exams + $value_impression;
+                $total_debit = $value_exams + $value_impression + $value_category;
                 $total_gaints = $value_license - $total_debit;
 
                 $set('total_debit', $total_debit);
@@ -180,14 +220,13 @@ class LicenseResource extends Resource
                 ->schema([
                     Forms\Components\CheckboxList::make('category')
                     ->label('Categoría')
-                    ->options([
-                        'a2' => 'A2',
-                        'b1' => 'B1',
-                        'c1' => 'C1',
-                        'c2' => 'C2',
-                    ])
+                    ->options(LicensesSetupCategory::pluck('name','price')->toArray())
                     ->required()
                     ->columns(4)
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, Get $get) {
+                        calculateTotalCategory($set, $get);
+                    })
                     ->gridDirection('row'),
                 ]),
                 Forms\Components\Section::make('Enrronlamiento')
@@ -196,10 +235,7 @@ class LicenseResource extends Resource
                     Forms\Components\Select::make('school')
                         ->label('Escuela')
                         ->placeholder('Seleccione una escuela')
-                        ->options([
-                            'blasscar' => 'blasscar',
-                            'Avenida Ciudad de Cali' => 'Avenida Ciudad de Cali',
-                        ])
+                        ->options(SchoolSetup::pluck('name_school','id')->toArray())
                         ->required(),
                     Forms\Components\Select::make('enlistment')
                         ->label('Enrrolamiento')
@@ -207,8 +243,38 @@ class LicenseResource extends Resource
                         ->options([
                             'cruce pin' => 'Cruce Pin',
                             'guardado' => 'Guardado',
+                            'abono' => 'Abono',
+                            'pagado' => 'Pagado',
                         ])
+                        ->live()
+                        ->afterStateHydrated(function (Set $set, Get $get) use (&$shcool, &$pins) {
+                            hiddenValuesenListment($set, $get, $shcool, $pins);
+                        })
+                        ->afterStateUpdated(function (Set $set, Get $get) use (&$shcool, &$pins) {
+                            hiddenValuesenListment($set, $get, $shcool, $pins);
+                        })
                         ->required(),
+                    Forms\Components\TextInput::make('value_enlistment')
+                        ->label('Valor Carta Escuela')
+                        ->live()
+                        ->hidden($shcool)
+                        ->maxLength(255),
+                    Forms\Components\TextInput::make('value_enlistment_payment')
+                        ->label('Valor Carta Escuela Abonado')
+                        ->live()
+                        ->hidden($shcool)
+                        ->maxLength(255),
+                    Forms\Components\Select::make('pins_school_process')
+                        ->label('Pines')
+                        ->placeholder('Seleccione una escuela')
+                        ->options(PinsProcess::pluck('name','id')->toArray())
+                        ->hidden($pins)
+                        ->required(),
+                    Forms\Components\TextInput::make('total_pins')
+                        ->label('Total Pines')
+                        ->hidden($pins)
+                        ->live()
+                        ->maxLength(255),
                 ]),
                 Forms\Components\Section::make('Complementos del Trámite')
                 ->columns(3)

@@ -16,6 +16,7 @@ class Percent extends Model
         'payment_agreements',
         'prescriptions',
         'subpoena',
+        'tabulated',
     ];
 
     public static function getCoerciveCollectionPercentage(): ?float

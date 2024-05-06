@@ -13,6 +13,8 @@ class PaymentAgreement extends Model
 
     protected $fillable = ['user_id','cc', 'subpoena','value_received','value','state', 'processor_id', 'value_commission', 'total_value', 'observations','paid'];
 
+    protected $casts = ['subpoena' => 'array'];
+
     protected $appends = ['payments_sum'];
 
     public function client(): BelongsTo

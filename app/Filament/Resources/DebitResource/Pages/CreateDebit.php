@@ -24,7 +24,7 @@ class CreateDebit extends CreateRecord
         $processorId = $data['processor_id'];
         $processor = User::find($processorId);
 
-        $create_at = Carbon::parse(CoerciveCollection::where('user_id', $clientUserId)->max('created_at'))->format('d/m/Y');
+        $create_at = Carbon::parse(Debit::where('user_id', $clientUserId)->max('created_at'))->format('d/m/Y');
 
         $dataToSend = array(
             'client' => $client->name,

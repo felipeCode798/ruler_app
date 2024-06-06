@@ -4,18 +4,40 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Controversy extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'appointment', 'code', 'subpoena','window', 'document_dni', 'document_power', 'document_status_account', 'state', 'category','processor_id', 'value_commission', 'value_received','total_value', 'value','observations','paid'];
+    protected $fillable = [
+        'user_id',
+        'processor_id',
+        'responsible_id',
+        'value_commission',
+        'appointment',
+        'code',
+        'window',
+        'document_dni',
+        'document_power',
+        'status_account',
+        'value_received',
+        'grand_value',
+        'status',
+        'observations',
+        'paid',
+    ];
 
-    protected $casts = ['subpoena' => 'array'];
+    protected $casts = [
+        'status_account' => 'array'
+    ];
 
-    protected $appends = ['payments_sum', 'payments_sum_processor', 'payments_sum_penalty'];
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function client(): BelongsTo
     {
@@ -27,50 +49,24 @@ class Controversy extends Model
         return $this->belongsTo(User::class, 'processor_id');
     }
 
-    public function controversypayments(): HasMany
+    public function responsible(): BelongsTo
     {
-        return $this->hasMany(ControversyPayments::class);
+        return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    public function getPaymentsSumAttribute()
+    public function items(): HasMany
     {
-        return $this->controversypayments()->sum('value');
+        return $this->hasMany(ControversyProcesses::class);
     }
 
-    public function suppliercontroversypayments(): HasMany
+    public function categoryrevocation(): BelongsTo
     {
-        return $this->hasMany(SupplierControversyPayments::class);
+        return $this->belongsTo(CategoryRevocation::class);
     }
 
-    public function getPaymentsSumSupplierAttribute()
+    public function paymentcontroversy(): HasOne
     {
-        return $this->suppliercontroversypayments()->sum('value');
+        return $this->hasOne(PaymentControversy::class);
     }
-
-    public function processorcontroversypayments(): HasMany
-    {
-        return $this->hasMany(ProcessorControversyPayments::class);
-    }
-
-    public function getPaymentsSumProcessorAttribute()
-    {
-        return $this->processorcontroversypayments()->sum('value');
-    }
-
-    public function penaltycontroversypayments(): HasMany
-    {
-        return $this->hasMany(PenaltyPayments::class);
-    }
-
-    public function getPaymentsSumPenaltyAttribute()
-    {
-        return $this->penaltycontroversypayments()->sum('value');
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class, 'category_id');
-    }
-
 
 }

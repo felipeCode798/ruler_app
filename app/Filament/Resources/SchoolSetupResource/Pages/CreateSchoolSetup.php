@@ -9,5 +9,4 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateSchoolSetup extends CreateRecord
 {
     protected static string $resource = SchoolSetupResource::class;
-    protected static ?string $title = 'Crear Configuración de la Escuela';
 }

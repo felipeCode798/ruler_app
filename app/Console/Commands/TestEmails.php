@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Mail\RevocationMail;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ControversyPending;
 
 class TestEmails extends Command
 {
@@ -28,7 +28,8 @@ class TestEmails extends Command
      */
     public function handle()
     {
-        $user = User::first();
-        Mail::to($user)->send(new ControversyPending());
+        //
+        $user = User::find(1);
+        Mail::to($user)->send(new RevocationMail);
     }
 }

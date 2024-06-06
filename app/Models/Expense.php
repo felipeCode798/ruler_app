@@ -9,20 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Expense extends Model
 {
+    use HasFactory;
 
-    protected $fillable = ['concept', 'amount'];
+    protected $fillable = ['concept', 'amount', 'responsible_id'];
 
-    public function user()
+    public function responsible(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($expense) {
-            $expense->user_id = auth()->id();
-        });
+        return $this->belongsTo(User::class, 'responsible_id');
     }
 }

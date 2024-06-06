@@ -11,8 +11,6 @@ class EditAccounting extends EditRecord
     protected static string $resource = AccountingResource::class;
     protected static ?string $title = 'Editar Contabilidad';
 
-
-
     protected function getHeaderActions(): array
     {
         return [

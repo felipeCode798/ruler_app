@@ -12,24 +12,22 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\ProcessReturn;
-use Illuminate\Support\Facades\DB;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use App\Models\ProcessingCommission;
 use App\Models\User;
+use App\Models\CategoryRevocation;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use App\Models\PaymentCourse;
+use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
-use Filament\Tables\Actions\ActionGroup;
-use App\Models\Category;
-use Filament\Forms\Components\TagsInput;
 
 class CourseResource extends Resource
 {
     protected static ?string $model = Course::class;
+
     protected static ?string $navigationLabel = 'Cursos';
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
@@ -39,59 +37,19 @@ class CourseResource extends Resource
         $roles = Role::whereIn('name', ['cliente'])->get();
         $roleOptions = $roles->pluck('name', 'id')->toArray();
 
-        function calculateTotalValues(Set $set, Get $get) {
-            $categoryId = $get('category_id');
-            $category = Category::find($categoryId);
-            $cia_des = $category->value_cia_des ?? 0;
-
-
-            $sumDebit = $get('value_transit') + $cia_des;
-            $gainsTotal = ($get('total_value') - $sumDebit);
-            $set('total_debit', $sumDebit);
-            $set('total_gains', $gainsTotal);
-        }
-
         function updateValue(Set $set, Get $get) {
-            $categoryId = $get('category_id');
-            $category = Category::find($categoryId);
+            $categoryId = $get('categoryrevocation_id');
+            $category = CategoryRevocation::find($categoryId);
 
             if ($category) {
-                $set('value_cia', $category->value_cia);
-                $set('value_transit', $category->value_transport);
-                $set('total_value', $category->price);
-                calculateTotalValues($set, $get);
+                $set('value_cia', $category->cia_value);
+                $set('value_transit', $category->transit_value);
             } else {
                 $set('value_cia', 0);
                 $set('value_transit', 0);
-                $set('total_value', 0);
             }
         }
 
-        function calculateCommission(Set $set, Get $get) {
-            $processor = User::find($get('processor_id'));
-            $categoryId = $get('category_id');
-            $category = Category::find($categoryId);
-            $cia_des = $category->value_cia_des ?? 0;
-
-            if ($processor) {
-                $commission = $processor->processingCommissions->first()->commission_course ?? 0;
-
-                $sumDebit = $get('value_transit') + $cia_des;
-                $commissionTotal = ($get('total_value') - $sumDebit) * ($commission / 100);
-                $commissionTotal = round($commissionTotal);
-
-                $set('value_commission', $commissionTotal);
-                $set('total_debit', $sumDebit + $commissionTotal);
-
-                $set('total_gains', $get('total_value') - $sumDebit - $commissionTotal);
-            } else {
-                $set('value_commission', 0);
-
-                $sumDebit = $get('value_transit') + $cia_des;
-                $set('total_debit', $sumDebit);
-                $set('total_gains', $get('total_value'));
-            }
-        }
 
         return $form
             ->schema([
@@ -185,10 +143,10 @@ class CourseResource extends Resource
                 Forms\Components\Section::make('Información del Curso')
                 ->columns(3)
                 ->schema([
-                    Forms\Components\Select::make('category_id')
+                    Forms\Components\Select::make('categoryrevocation_id')
                         ->label('Categoría')
                         ->placeholder('Seleccione una categoría')
-                        ->relationship('category', 'name')
+                        ->relationship('categoryrevocation', 'name')
                         ->required()
                         ->live()
                         ->columnSpan('full')
@@ -227,7 +185,6 @@ class CourseResource extends Resource
                 ->schema([
                     Forms\Components\FileUpload::make('document_status_account')
                         ->label('Estado de Cuenta')
-                        ->required()
                         ->acceptedFileTypes(['image/*', 'application/pdf'])
                         ->preserveFilenames()
                         ->downloadable()
@@ -243,32 +200,41 @@ class CourseResource extends Resource
                         ->placeholder('Seleccione un tramitador')
                         ->relationship('processor', 'name', function ($query) { $query->whereHas('roles', function ($roleQuery) { $roleQuery->where('name', 'tramitador'); }); })
                         ->live()
-                        ->afterStateUpdated(function (Set $set, Get $get) {
-                            calculateCommission($set, $get);
-                        })
-                        ->afterStateHydrated(function (Set $set, Get $get) {
-                            calculateCommission($set, $get);
-                        })
                         ->searchable()
                         ->preload(),
                     Forms\Components\TextInput::make('value_commission')
                         ->prefix('$')
                         ->label('Comisión')
                         ->numeric()
-                        ->disabled()
+                        //->disabled()
                         ->maxLength(11),
                 ]),
                 Forms\Components\Section::make('Tramite del Curso')
                 ->columns(1)
                 ->schema([
-                    Forms\Components\Select::make('state')
-                        ->label('Estado')
-                        ->placeholder('Seleccione un estado')
+                    Forms\Components\ToggleButtons::make('state')
+                        ->label('Estado de Proceso')
+                        ->inline()
+                        ->default('pendiente')
+                        ->required()
                         ->options([
-                            'pending' => 'Pendiente',
-                            'ready' => 'Listo',
+                            'Pendiente' => 'Pendinete',
+                            'En Proceso' => 'En Proceso',
+                            'Finalizado' => 'Finalizado',
+                            'Devuelto' => 'Devuelto'
                         ])
-                        ->required(),
+                        ->colors([
+                            'Pendiente' => 'info',
+                            'En Proceso' => 'warning',
+                            'Finalizado' => 'success',
+                            'Devuelto' => 'danger'
+                        ])
+                        ->icons([
+                            'Pendiente' => 'heroicon-m-signal',
+                            'En Proceso' => 'heroicon-m-wallet',
+                            'Finalizado' => 'heroicon-m-check-badge',
+                            'Devuelto' => 'heroicon-m-x-circle'
+                        ]),
                     Forms\Components\Textarea::make('observations')
                         ->label('Observaciones')
                         ->required()
@@ -276,30 +242,16 @@ class CourseResource extends Resource
                         ->columnSpan('full'),
                     Forms\Components\Toggle::make('paid')
                         ->label('Pagado')
-                        ->inline(false)
+                        ->inline(false),
+                    Forms\Components\Hidden::make('responsible_id')
+                        ->default(fn () => Auth::id()),
                 ]),
-                Forms\Components\Section::make('Valores Totales')
-                ->columns(2)
-                ->schema([
-                    Forms\Components\TextInput::make('total_debit')
-                    ->disabled()
-                    ->prefix('$')
-                    ->label('Valor Debito')
-                    ->live(),
-                    Forms\Components\TextInput::make('total_gains')
-                    ->disabled()
-                    ->prefix('$')
-                    ->label('Valor Ganancias')
-                    ->live(),
-                ]),
-
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->query(Course::query()->where('state', '!=', 'return'))
             ->columns([
                 Tables\Columns\TextColumn::make('client.name')
                     ->label('Cliente')
@@ -313,18 +265,19 @@ class CourseResource extends Resource
                     ->label('Comparendo')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('state')
+                Tables\Columns\SelectColumn::make('state')
                     ->label('Estado')
-                    ->searchable()
-                    ->sortable(),
+                    ->options([
+                        'Pendiente' => 'Pendiente',
+                        'En Proceso' => 'En Proceso',
+                        'Finalizado' => 'Finalizado',
+                        'Devuelto' => 'Devuelto'
+                    ])
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('total_value')
                     ->money('USD')
                     ->label('Valor total')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('payments_sum')
-                    ->money('USD')
-                    ->label('Pagado')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -337,30 +290,17 @@ class CourseResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                ActionGroup::make([
-                    Tables\Actions\Action::make('Devolucion', 'start_process')
-                        ->requiresConfirmation()
-                        ->action(function (Course $Course) {
-                            ProcessReturn::create([
-                                'user_id' => $Course->user_id,
-                                'type_process' => 'courses',
-                                'process_id' => $Course->id,
-                            ]);
-
-                            $Course->update(['state' => 'return']);
-
-                            return redirect()->back();
-                        })
-                ]),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     ExportBulkAction::make()->exports([
-                        ExcelExport::make()->fromTable()->only(['client.name', 'subpoena', 'state', 'total_value']),
+                        ExcelExport::make()->fromTable()->only(['client.name','client.dni','subpoena','state','total_value','created_at']),
                     ])
                 ]),
             ]);
@@ -369,9 +309,16 @@ class CourseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\CoursepaymentsRelationManager::class,
-            RelationManagers\SupplierCoursePaymentsRelationManager::class,
+            RelationManagers\PaymentCourseRelationManager::class,
         ];
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null {
+        return static::getmodel()::count() > 10? 'success' : 'danger';
+    }
+
+    public static function getNavigationBadge(): ?string {
+        return static::getmodel()::count();
     }
 
     public static function getPages(): array

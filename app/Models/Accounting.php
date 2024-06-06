@@ -4,23 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Licenses;
-use App\Models\Pins;
-use App\Models\Debit;
-use App\Models\CoerciveCollection;
-use App\Models\NotResolutions;
-use App\Models\PaymentAgreement;
-use App\Models\Prescription;
-use App\Models\Subpoena;
-use App\Models\Controversy;
-use App\Models\Course;
-use App\Models\Renewall;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Accounting extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date_start', 'date_end', 'description', 'revenue', 'expenses', 'total_value'];
+    protected $fillable = ['description', 'total_revenue', 'total_expenses', 'grand_value', 'responsible_id'];
 
+    public function responsible(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'responsible_id');
+    }
 
+    public function tramitadores(): HasMany
+    {
+        return $this->hasMany(AccountingDetail::class);
+    }
 }

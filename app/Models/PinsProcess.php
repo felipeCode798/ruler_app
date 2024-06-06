@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use  Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PinsProcess extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'name',
         'pines_asinged',
@@ -25,5 +24,10 @@ class PinsProcess extends Model
     public function getSchoolSetupIdAttribute()
     {
         return $this->schoolSetup->id;
+    }
+
+    public function pinslicenses()
+    {
+        return $this->hasMany(PinsLicenses::class);
     }
 }

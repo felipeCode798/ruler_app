@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Licenses extends Model
 {
@@ -20,6 +21,10 @@ class Licenses extends Model
         'impression',
         'value_exams',
         'value_impression',
+        'value_enlistment',
+        'value_enlistment_payment',
+        'pins_school_process',
+        'total_pins',
         'state',
         'processor_id',
         'value_commission',
@@ -31,8 +36,6 @@ class Licenses extends Model
         'category' => 'array',
     ];
 
-    protected $appends = ['payments_sum'];
-
     public function client(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -43,14 +46,14 @@ class Licenses extends Model
         return $this->belongsTo(User::class, 'processor_id');
     }
 
-    public function payments(): HasMany
+    public function licensespayment(): HasOne
     {
-        return $this->hasMany(Payments::class);
+        return $this->hasOne(LicensesPayment::class);
     }
 
-    public function getPaymentsSumAttribute()
+    public function pinslicenses(): HasOne
     {
-        return $this->payments()->sum('value');
+        return $this->hasOne(PinsLicenses::class);
     }
 
 }

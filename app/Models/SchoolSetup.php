@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use  Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SchoolSetup extends Model
 {
@@ -19,8 +19,15 @@ class SchoolSetup extends Model
         'total_pins',
     ];
 
-    public function pinsProcesses()
+    public function pinsProcess()
     {
         return $this->hasMany(PinsProcess::class);
     }
+
+    public function pinslicenses(): HasOne
+    {
+        return $this->hasOne(PinsLicenses::class);
+    }
+
+
 }

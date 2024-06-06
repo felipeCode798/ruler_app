@@ -12,36 +12,56 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
+use Filament\Forms\Set;
 
 class LawyerResource extends Resource
 {
     protected static ?string $model = Lawyer::class;
-    protected static ?string $navigationLabel = 'Abogados';
+
     protected static ?string $navigationIcon = 'heroicon-o-scale';
+    protected static ?string $navigationLabel = 'Abogados';
     protected static ?string $navigationGroup = 'Configuración';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Nombre')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('phone')
-                    ->label('Teléfono')
-                    ->tel()
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('prefix')
-                    ->label('Prefijo')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('commission')
-                    ->label('Comisión')
-                    ->suffix('%')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Section::make([
+                    Forms\Components\Grid::make()
+                        ->columns(4)
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                                ->label('Nombre')
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn(string $operation, $state, Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null)
+                                ->required()
+                                ->maxLength(191),
+                            Forms\Components\TextInput::make('phone')
+                                ->label('Teléfono')
+                                ->tel()
+                                ->numeric()
+                                ->required(),
+                            Forms\Components\TextInput::make('prefix')
+                                ->label('Prefijo')
+                                ->required()
+                                ->maxLength(191),
+                            Forms\Components\TextInput::make('commission')
+                                ->label('Comisión')
+                                ->suffix('%')
+                                ->required()
+                                ->numeric(),
+                            Forms\Components\TextInput::make('slug')
+                                ->required()
+                                ->disabled()
+                                ->dehydrated()
+                                ->columnSpan('full')
+                                ->maxLength(255),
+                            Forms\Components\Toggle::make('is_active')
+                                ->label('Activo')
+                                ->required()
+                        ]),
+                    ]),
             ]);
     }
 
@@ -51,22 +71,27 @@ class LawyerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
-                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
-                    ->label('Teléfono')
-                    ->sortable()
-                    ->searchable(),
+                    ->label('Telefono')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('prefix')
                     ->label('Prefijo')
-                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('commission')
-                    ->label('Comisión')
+                    ->label('Comision')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Activo')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Actualizado')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -75,9 +100,11 @@ class LawyerResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

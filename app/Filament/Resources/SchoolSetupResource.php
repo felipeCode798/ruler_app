@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SchoolSetupResource\Pages;
 use App\Filament\Resources\SchoolSetupResource\RelationManagers;
 use App\Models\SchoolSetup;
+use App\Models\PinProcess;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SchoolSetupResource extends Resource
 {
     protected static ?string $model = SchoolSetup::class;
+
     protected static ?string $navigationLabel = 'Configuración de la Escuela';
     protected static ?string $navigationIcon = 'heroicon-o-finger-print';
     protected static ?string $navigationGroup = 'Configuración';
@@ -82,9 +84,7 @@ class SchoolSetupResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

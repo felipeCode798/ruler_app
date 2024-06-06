@@ -17,23 +17,19 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
             ->id('admin')
             ->path('admin')
             ->login()
-            ->default()
             ->colors([
-                'primary' => Color::Red,
+                'primary' => Color::Amber,
             ])
-            ->font('Poppins')
-            ->breadcrumbs(false)
-            ->favicon('/public/images/favicon_black.png')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -41,10 +37,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                //Widgets\AccountWidget::class,
-                //Widgets\FilamentInfoWidget::class,
+                Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
-            ->profile()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -56,13 +51,26 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->plugins([
-                FilamentSpatieRolesPermissionsPlugin::make(),
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
-            ]
-            )
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                ->gridColumns([
+                    'default' => 1,
+                    'sm' => 2,
+                    'lg' => 2
+                ])
+                ->sectionColumnSpan(1)
+                ->checkboxListColumns([
+                    'default' => 1,
+                    'sm' => 2,
+                    'lg' => 4,
+                ])
+                ->resourceCheckboxListColumns([
+                    'default' => 1,
+                    'sm' => 2,
+                ]),
             ]);
     }
 }

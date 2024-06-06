@@ -6,39 +6,42 @@ use App\Filament\Resources\ControversyResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ControversyPending;
 use App\Models\User;
+use App\Mail\ControversyMail;
 
 class CreateControversy extends CreateRecord
 {
     protected static string $resource = ControversyResource::class;
-    protected static ?string $title = 'Crear Controversia';
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $clientUserId = $data['user_id'];;
+        $clientUserId = $data['user_id'] ?? null;
         $client = User::find($clientUserId);
 
-        $processorId = $data['processor_id'];
+        $processorId = $data['processor_id'] ?? null;
         $processor = User::find($processorId);
 
-        $dataToSend = array(
-            'client' => $client->name,
-            'dni' => $client->dni,
-            'email' => $client->email,
-            'phone' => $client->phone,
-            'invoice' => $client->dni.'-'.$clientUserId.'CTA',
-            'state' => $data['state'],
-            'appointment' => $data['appointment'],
-            'code' => $data['code'],
-            'window' => $data['window'],
-            'processor_id' => $processor->name,
-            'total_value' => $data['total_value'],
-            'observations' => $data['observations'],
-            'paid' => $data['paid'],
-        );
+        // Validar existencia de los datos requeridos
+        if (!$client) {
+            throw new \Exception("Cliente no encontrado");
+        }
 
-        Mail::to($client)->send(new ControversyPending($dataToSend));
+        $dataToSend = [
+            'client' => $client->name ?? 'N/A',
+            'dni' => $client->dni ?? 'N/A',
+            'email' => $client->email ?? 'N/A',
+            'phone' => $client->phone ?? 'N/A',
+            'invoice' => ($client->dni ?? 'N/A').'-'.$clientUserId.'CTA',
+            'state' => $data['status'] ?? 'N/A',
+            'appointment' => $data['appointment'] ?? 'N/A',
+            'code' => $data['code'] ?? 'N/A',
+            'window' => $data['window'] ?? 'N/A',
+            'total_value' => $data['grand_value'] ?? 0,
+            'observations' => $data['observations'] ?? 'N/A',
+            'paid' => $data['paid'] ?? false,
+        ];
+
+        Mail::to($client->email)->send(new ControversyMail($dataToSend));
 
         return $data;
     }

@@ -12,15 +12,15 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
-use Filament\Tables\Actions\ActionGroup;
 
 class ExpenseResource extends Resource
 {
     protected static ?string $model = Expense::class;
+
     protected static ?string $navigationLabel = 'Gastos';
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
@@ -28,19 +28,17 @@ class ExpenseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Registro de gasto')
-                ->columns(2)
-                ->schema([
-                    Forms\Components\TextInput::make('concept')
-                        ->label('Concepto')
-                        ->required()
-                        ->maxLength(191),
-                    Forms\Components\TextInput::make('amount')
-                        ->label('Cantidad')
-                        ->prefix('$')
-                        ->required()
-                        ->numeric(),
-                ]),
+                Forms\Components\TextInput::make('concept')
+                    ->label('Concepto')
+                    ->required()
+                    ->maxLength(191),
+                Forms\Components\TextInput::make('amount')
+                    ->label('Cantidad')
+                    ->prefix('$')
+                    ->required()
+                    ->numeric(),
+                Forms\Components\Hidden::make('responsible_id')
+                    ->default(fn () => Auth::id()),
             ]);
     }
 
@@ -57,9 +55,6 @@ class ExpenseResource extends Resource
                     ->searchable()
                     ->money('USD')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Usuario')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Fecha de creación')
                     ->dateTime()
@@ -67,22 +62,24 @@ class ExpenseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-            //
+                //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                ExportBulkAction::make()->exports([
-                    ExcelExport::make()->fromTable()->only(['concept','amount','user.name','created_at','updated_at',]),
-                ])
-            ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()->exports([
+                        ExcelExport::make()->fromTable()->only(['concept','amount','created_at']),
+                    ])
+                ]),
             ]);
-        }
+    }
 
     public static function getRelations(): array
     {

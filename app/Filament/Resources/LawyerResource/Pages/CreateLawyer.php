@@ -9,5 +9,4 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateLawyer extends CreateRecord
 {
     protected static string $resource = LawyerResource::class;
-    protected static ?string $title = 'Crear Abogado';
 }

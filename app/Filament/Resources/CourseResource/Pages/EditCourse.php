@@ -9,7 +9,6 @@ use Filament\Resources\Pages\EditRecord;
 class EditCourse extends EditRecord
 {
     protected static string $resource = CourseResource::class;
-    protected static ?string $title = 'Editar Curso';
 
     protected function getHeaderActions(): array
     {

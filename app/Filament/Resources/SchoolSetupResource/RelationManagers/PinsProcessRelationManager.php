@@ -10,16 +10,14 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\SchoolSetup;
-use App\Models\PinsProcess;
-use Illuminate\Support\Facades\Request;
+
 
 class PinsProcessRelationManager extends RelationManager
 {
-    protected static string $relationship = 'pinsProcesses';
+    protected static string $relationship = 'PinsProcess';
 
     public function form(Form $form): Form
     {
-
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
@@ -34,7 +32,8 @@ class PinsProcessRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre'),
             ])
             ->filters([
                 //

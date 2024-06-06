@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,12 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Schema::defaultStringLength(191);
-
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
-                ->locales(['es']);
-                //->visible(outsidePanels: true);
+                ->locales(['es'])
+                ->visible(outsidePanels: false);
         });
     }
 }

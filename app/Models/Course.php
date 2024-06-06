@@ -4,18 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'category_id','subpoena', 'value_cia', 'value_transit', 'state', 'document_status_account', 'processor_id', 'value_commission', 'total_value', 'observations', 'paid'];
+    protected $fillable = [
+        'user_id',
+        'categoryrevocation_id',
+        'subpoena',
+        'value_cia',
+        'value_transit',
+        'state',
+        'document_status_account',
+        'processor_id',
+        'value_commission',
+        'total_value',
+        'observations',
+        'paid',
+        'responsible_id'
+    ];
 
     protected $casts = ['subpoena' => 'array'];
-
-    protected $appends = ['payments_sum'];
 
     public function client(): BelongsTo
     {
@@ -27,28 +40,18 @@ class Course extends Model
         return $this->belongsTo(User::class, 'processor_id');
     }
 
-    public function coursepayments(): HasMany
+    public function categoryrevocation(): BelongsTo
     {
-        return $this->hasMany(CoursePayments::class);
+        return $this->belongsTo(CategoryRevocation::class);
     }
 
-    public function getPaymentsSumAttribute()
+    public function paymentcourse(): HasOne
     {
-        return $this->coursepayments()->sum('value');
+        return $this->hasOne(PaymentCourse::class);
     }
 
-    public function suppliercoursepayments(): HasMany
+    public function responsible(): BelongsTo
     {
-        return $this->hasMany(SupplierCoursePayments::class);
-    }
-
-    public function getPaymentsSumSupplierAttribute()
-    {
-        return $this->suppliercoursepayments()->sum('value');
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(User::class, 'responsible_id');
     }
 }

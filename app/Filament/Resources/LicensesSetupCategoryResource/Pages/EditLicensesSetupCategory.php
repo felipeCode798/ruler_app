@@ -9,7 +9,6 @@ use Filament\Resources\Pages\EditRecord;
 class EditLicensesSetupCategory extends EditRecord
 {
     protected static string $resource = LicensesSetupCategoryResource::class;
-    protected static ?string $title = 'Editar Categoria de Licencia';
 
     protected function getHeaderActions(): array
     {

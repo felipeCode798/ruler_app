@@ -6,15 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
-
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, HasPanelShield;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -53,19 +50,34 @@ class User extends Authenticatable
         ];
     }
 
-    public function clientLicenses(): HasMany
+
+    public function paymentProcesses()
     {
-        return $this->hasMany(License::class, 'user_id');
+        return $this->hasMany(PaymentProcess::class, 'responsible_id');
     }
 
-    public function processorLicenses(): HasMany
+    public function paymentControversies()
     {
-        return $this->hasMany(License::class, 'processor_id');
+        return $this->hasMany(PaymentControversy::class, 'responsible_id');
     }
 
-    public function processingCommissions(): HasMany
+    public function licensesPayments()
     {
-        return $this->hasMany(ProcessingCommission::class, 'processor_id');
+        return $this->hasMany(LicensesPayment::class, 'responsible_id');
     }
 
+    public function paymentCourses()
+    {
+        return $this->hasMany(PaymentCourse::class, 'responsible_id');
+    }
+
+    public function paymentRenewalls()
+    {
+        return $this->hasMany(PaymentRenewall::class, 'responsible_id');
+    }
+
+    public function expense()
+    {
+        return $this->hasMany(Expense::class, 'responsible_id');
+    }
 }

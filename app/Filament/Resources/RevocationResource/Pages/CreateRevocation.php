@@ -36,7 +36,7 @@ class CreateRevocation extends CreateRecord
             //'items' => $items
         );
 
-        Mail::to($client)->send(new RevocationMail($dataToSend));
+        //Mail::to($client)->send(new RevocationMail($dataToSend));
 
         return $data;
     }

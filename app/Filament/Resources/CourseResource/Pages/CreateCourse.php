@@ -30,7 +30,7 @@ class CreateCourse extends CreateRecord
             'total_value' => $data['total_value'] ?? 0,
         );
 
-        Mail::to($client)->send(new CourseMail($dataToSend));
+        //Mail::to($client)->send(new CourseMail($dataToSend));
 
         return $data;
     }

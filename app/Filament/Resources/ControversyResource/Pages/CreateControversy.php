@@ -41,7 +41,7 @@ class CreateControversy extends CreateRecord
             'paid' => $data['paid'] ?? false,
         ];
 
-        Mail::to($client->email)->send(new ControversyMail($dataToSend));
+        //Mail::to($client->email)->send(new ControversyMail($dataToSend));
 
         return $data;
     }

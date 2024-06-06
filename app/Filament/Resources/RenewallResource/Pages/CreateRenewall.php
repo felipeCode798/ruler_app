@@ -30,7 +30,7 @@ class CreateRenewall extends CreateRecord
             'total_value' => $data['total_value'] ?? 0,
         );
 
-        Mail::to($client)->send(new RenewallMail($dataToSend));
+        //Mail::to($client)->send(new RenewallMail($dataToSend));
 
         return $data;
     }

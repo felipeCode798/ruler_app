@@ -6,11 +6,7 @@ use App\Filament\Resources\AccountingResource\Pages;
 use App\Filament\Resources\AccountingResource\RelationManagers;
 use App\Models\Accounting;
 use App\Models\User;
-use App\Models\PaymentProcess;
-use App\Models\PaymentControversy;
-use App\Models\LicensesPayment;
-use App\Models\PaymentCourse;
-use App\Models\PaymentRenewall;
+use App\Models\Pagos;
 use App\Models\Expense;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -71,6 +67,13 @@ class AccountingResource extends Resource
                                     ->disabled()
                                     ->dehydrated()
                                     ->maxLength(255),
+                                Forms\Components\TextInput::make('accointing_paymet')
+                                    ->prefix('$')
+                                    ->label('Resivido')
+                                    ->required()
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->maxLength(255),
                                 Forms\Components\TextInput::make('total_value')
                                     ->prefix('$')
                                     ->label('Valor Total')
@@ -79,29 +82,31 @@ class AccountingResource extends Resource
                                     ->dehydrated()
                                     ->maxLength(255),
                             ])
-                            ->columns(4)
+                            ->columns(5)
                             ->disableItemCreation()
                             ->deletable(false)
                             ->afterStateHydrated(function ($state, $set, $get) use ($tramitadores) {
                                 $state = $tramitadores->map(function ($tramitador) {
                                     $revenue = self::getPaymentTotal($tramitador, 'entrada');
+                                    $accointing_paymet = self::getPaymentAccountingTotal($tramitador, 'entrada');
                                     $expenses = self::getPaymentTotal($tramitador, 'salida');
                                     $generalexpenses = self::getExpensePaymentTotal($tramitador);
-                                    $totalexpenses = $generalexpenses + $expenses;
+                                    $totalexpenses = $generalexpenses + $expenses + $accointing_paymet;
                                     $total_value = $revenue - $totalexpenses;
 
                                     return [
                                         'responsible' => $tramitador->name,
                                         'revenue' => $revenue,
                                         'expenses' => $totalexpenses,
+                                        'accointing_paymet' => $accointing_paymet,
                                         'total_value' => $total_value,
                                     ];
                                 })->toArray();
                                 $set('tramitadores', $state);
                             })
                     ]),
-                Forms\Components\Section::make('Total')
-                    ->columns(3)
+                    Forms\Components\Section::make('Total')
+                    ->columns(4)
                     ->schema([
                         Forms\Components\Placeholder::make('total_revenue')
                             ->label('Total Ingresos')
@@ -132,6 +137,21 @@ class AccountingResource extends Resource
                                 $set('total_expenses', $total);
                                 return Number::currency($total, 'USD');
                             }),
+                        Forms\Components\Placeholder::make('grand_accointing_paymet')
+                            ->label('Valor Total Resivido')
+                            ->content(function (Get $get, Set $set){
+                                $total = 0;
+                                if(!$repeaters = $get('tramitadores')) {
+                                    return $total;
+                                }
+
+                                foreach($repeaters as $key => $repeater){
+                                    $total += $get("tramitadores.{$key}.total_value");
+                                }
+
+                                $set('grand_accointing', $total);
+                                return Number::currency($total, 'USD');
+                            }),
                         Forms\Components\Placeholder::make('grand_total_value')
                             ->label('Valor Total A Pagar')
                             ->content(function (Get $get, Set $set){
@@ -147,6 +167,8 @@ class AccountingResource extends Resource
                                 $set('grand_value', $total);
                                 return Number::currency($total, 'USD');
                             }),
+                        Forms\Components\Hidden::make('grand_accointing')
+                            ->default(0),
                         Forms\Components\Hidden::make('total_revenue')
                             ->default(0),
                         Forms\Components\Hidden::make('total_expenses')
@@ -172,32 +194,27 @@ class AccountingResource extends Resource
         $startDate = Carbon::today()->startOfDay();
         $endDate = Carbon::today()->endOfDay();
 
-        $paymentProcesses = PaymentProcess::where('responsible_id', $tramitador->id)
-            ->where('concept', $concept)
+        $pagos = Pagos::where('responsible_id', $tramitador->id)
+            ->where('concepto', $concept)
+            //->where('pagado', false)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('value');
+            ->sum('valor');
 
-        $paymentControversies = PaymentControversy::where('responsible_id', $tramitador->id)
-            ->where('concept', $concept)
+        return $pagos ;
+    }
+
+    private static function getPaymentAccountingTotal($tramitador, $concept)
+    {
+        $startDate = Carbon::today()->startOfDay();
+        $endDate = Carbon::today()->endOfDay();
+
+        $pagos = Pagos::where('responsible_id', $tramitador->id)
+            ->where('concepto', $concept)
+            ->where('pagado', true)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('value');
+            ->sum('valor');
 
-        $licensesPayments = LicensesPayment::where('responsible_id', $tramitador->id)
-            ->where('concept', $concept)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('value');
-
-        $paymentCourses = PaymentCourse::where('responsible_id', $tramitador->id)
-            ->where('concept', $concept)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('value');
-
-        $paymentRenewalls = PaymentRenewall::where('responsible_id', $tramitador->id)
-            ->where('concept', $concept)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->sum('value');
-
-        return $paymentProcesses + $paymentControversies + $licensesPayments + $paymentCourses + $paymentRenewalls;
+        return $pagos ;
     }
 
     private static function getExpensePaymentTotal($tramitador)

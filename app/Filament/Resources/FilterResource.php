@@ -27,9 +27,13 @@ class FilterResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nombre del Filtro')
-                    ->columnSpan('full')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('commission')
+                    ->label('Comision')
+                    ->required()
+                    ->suffix('%')
+                    ->numeric(),
             ]);
     }
 
@@ -39,6 +43,9 @@ class FilterResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre del Filtro')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('commission')
+                    ->label('Comision')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')

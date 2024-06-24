@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListAccountings extends ListRecords
 {
     protected static string $resource = AccountingResource::class;
+    protected static ?string $title = 'Contabilidad';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Contabilizar'),
         ];
     }
 }

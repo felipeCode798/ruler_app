@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListFilters extends ListRecords
 {
     protected static string $resource = FilterResource::class;
+    protected static ?string $title = 'Filtros';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Crear Filtro'),
         ];
     }
 }

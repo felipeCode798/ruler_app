@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             LawyerSeeder::class,
             FilterSeeder::class,
             ProcessCategorySeeder::class,
+            LicensesSetupSeeder::class,
+            SchoolSetupSeeder::class,
         ]);
     }
 }

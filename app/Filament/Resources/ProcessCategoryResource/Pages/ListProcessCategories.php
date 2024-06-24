@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListProcessCategories extends ListRecords
 {
     protected static string $resource = ProcessCategoryResource::class;
+    protected static ?string $title = 'Proceso';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Crear Configuracion De Proceso'),
         ];
     }
 }

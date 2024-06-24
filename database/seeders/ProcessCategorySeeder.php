@@ -43,5 +43,25 @@ class ProcessCategorySeeder extends Seeder
             'value_process' => 50,
         ]);
 
+        ProcessCategory::create([
+            'name' => 'Controversia',
+            'value_process' => 50,
+        ]);
+
+        ProcessCategory::create([
+            'name' => 'Curso',
+            'value_process' => 50,
+        ]);
+
+        ProcessCategory::create([
+            'name' => 'Licencia',
+            'value_process' => 50,
+        ]);
+
+        ProcessCategory::create([
+            'name' => 'Renovacion',
+            'value_process' => 50,
+        ]);
+
     }
 }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('cia_discount_value')->nullable()->default(0);
             $table->integer('cia_total_value');
             $table->integer('price')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(false);
             $table->string('slug')->unique();
             $table->timestamps();
         });

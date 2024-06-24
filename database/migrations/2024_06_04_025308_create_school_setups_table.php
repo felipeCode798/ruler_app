@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('responsible');
             $table->integer('total_pins');
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }

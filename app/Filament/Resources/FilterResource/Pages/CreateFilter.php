@@ -9,4 +9,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateFilter extends CreateRecord
 {
     protected static string $resource = FilterResource::class;
+    protected static ?string $title = 'Crear Filtro';
 }

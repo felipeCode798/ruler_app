@@ -9,6 +9,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditLawyer extends EditRecord
 {
     protected static string $resource = LawyerResource::class;
+    protected static ?string $title = 'Editar Abogado';
 
     protected function getHeaderActions(): array
     {

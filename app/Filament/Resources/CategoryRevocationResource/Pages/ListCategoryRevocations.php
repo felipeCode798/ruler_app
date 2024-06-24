@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListCategoryRevocations extends ListRecords
 {
     protected static string $resource = CategoryRevocationResource::class;
+    protected static ?string $title = 'Categorias';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Crear Categoria'),
         ];
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('phone');
             $table->string('prefix');
             $table->integer('commission');
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(false);
             $table->string('slug')->unique();
             $table->timestamps();
         });

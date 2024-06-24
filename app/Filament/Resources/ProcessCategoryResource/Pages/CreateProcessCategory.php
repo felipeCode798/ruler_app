@@ -9,4 +9,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateProcessCategory extends CreateRecord
 {
     protected static string $resource = ProcessCategoryResource::class;
+    protected static ?string $title = 'Crear Proceso';
 }

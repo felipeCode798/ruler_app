@@ -9,6 +9,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditFilter extends EditRecord
 {
     protected static string $resource = FilterResource::class;
+    protected static ?string $title = 'Editar Filtro';
 
     protected function getHeaderActions(): array
     {

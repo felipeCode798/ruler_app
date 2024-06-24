@@ -9,4 +9,5 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCategoryRevocation extends CreateRecord
 {
     protected static string $resource = CategoryRevocationResource::class;
+    protected static ?string $title = 'Crear Categoria';
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('description');
             $table->integer('total_revenue');
             $table->integer('total_expenses');
+            $table->integer('grand_accointing')->nullable();
             $table->integer('grand_value');
             $table->foreignId('responsible_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();

@@ -13,6 +13,10 @@ class FilterSeeder extends Seeder
      */
     public function run(): void
     {
-        Filter::create(['name' => '20-21']);
+        Filter::create([
+            'name' => '20-21',
+            'commission' => '13',
+        ]);
+
     }
 }

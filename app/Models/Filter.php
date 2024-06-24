@@ -10,10 +10,15 @@ class Filter extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'commission'];
 
     public function revocation(): HasMany
     {
         return $this->hasMany(Revocation::class);
+    }
+
+    public function registrarProcesos(): HasMany
+    {
+        return $this->hasMany(RegistrarProceso::class);
     }
 }

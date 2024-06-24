@@ -9,11 +9,12 @@ use Filament\Resources\Pages\ListRecords;
 class ListLicensesSetupCategories extends ListRecords
 {
     protected static string $resource = LicensesSetupCategoryResource::class;
+    protected static ?string $title = 'Configuracion De Licencias';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Registrar Configuracion'),
         ];
     }
 }

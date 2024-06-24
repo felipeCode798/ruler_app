@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('responsible');
             $table->integer('revenue');
             $table->integer('expenses');
+            $table->integer('accointing_paymet')->nullable();
             $table->integer('total_value');
             $table->timestamps();
         });

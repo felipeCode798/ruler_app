@@ -40,4 +40,9 @@ class CategoryRevocation extends Model
         return $this->hasMany(Course::class);
     }
 
+    public function registrarProcesos(): HasMany
+    {
+        return $this->hasMany(RegistrarProceso::class);
+    }
+
 }

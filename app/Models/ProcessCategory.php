@@ -16,4 +16,9 @@ class ProcessCategory extends Model
     {
         return $this->hasMany(Revocation::class);
     }
+
+    public function registrarProcesos(): HasMany
+    {
+        return $this->hasMany(RegistrarProceso::class);
+    }
 }

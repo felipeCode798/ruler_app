@@ -19,7 +19,6 @@ class UserSeeder extends Seeder
             'email' => 'felipe@gmail.com',
             'password' => Hash::make('123456789'),
             'phone' => '1234567890',
-            'address' => '123 Main St',
             'dni' => '123456789',
         ]);
 
@@ -28,7 +27,6 @@ class UserSeeder extends Seeder
             'email' => 'camila@gmail.com',
             'password' => Hash::make('123456789'),
             'phone' => '0987654321',
-            'address' => '456 Another St',
             'dni' => '987654321',
         ]);
     }

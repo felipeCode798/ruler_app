@@ -121,26 +121,14 @@ class ProcesoResource extends Resource
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('email')
                                 ->label('Email')
-                                ->required()
                                 ->email()
                                 ->unique(User::class, 'dni', ignoreRecord: true)
                                 ->disabledOn('edit')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('phone')
                                 ->label('Teléfono')
-                                ->required()
                                 ->numeric()
                                 ->maxLength(11),
-                            Forms\Components\TextInput::make('address')
-                                ->label('Dirección')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('password')
-                                ->label('Contraseña')
-                                ->required()
-                                ->password()
-                                ->hiddenOn('edit')
-                                ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
                             Forms\Components\Select::make('role')
                                 ->label('Rol')
                                 ->placeholder('Seleccione un rol')

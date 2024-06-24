@@ -45,24 +45,18 @@ class UserResource extends Resource
                             ->maxLength(255)
                     ]),
                 Forms\Components\Section::make('Información de Usuario')
-                ->columns(4)
+                ->columns(3)
                 ->schema([
                     Forms\Components\TextInput::make('email')
                         ->label('Email')
-                        ->required()
                         ->email()
                         ->unique(User::class, 'dni', ignoreRecord: true)
                         ->disabledOn('edit')
                         ->maxLength(255),
                     Forms\Components\TextInput::make('phone')
                         ->label('Teléfono')
-                        ->required()
                         ->numeric()
                         ->maxLength(11),
-                    Forms\Components\TextInput::make('address')
-                        ->label('Dirección')
-                        ->required()
-                        ->maxLength(255),
                     Forms\Components\TextInput::make('password')
                         ->label('Contraseña')
                         ->required()

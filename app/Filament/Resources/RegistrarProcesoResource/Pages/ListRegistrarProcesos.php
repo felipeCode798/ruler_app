@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\Builder;
 class ListRegistrarProcesos extends ListRecords
 {
     protected static string $resource = RegistrarProcesoResource::class;
+    protected static ?string $title = 'Resgistrar Proceso';
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Registrar Proceso'),
         ];
     }
 

@@ -9,6 +9,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditProceso extends EditRecord
 {
     protected static string $resource = ProcesoResource::class;
+    protected static ?string $title = 'Editar Proceso';
 
     protected function getHeaderActions(): array
     {

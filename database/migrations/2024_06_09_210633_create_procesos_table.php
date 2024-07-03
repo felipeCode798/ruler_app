@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('estado', ['Pendiente', 'En Proceso', 'En Tramite', 'Resulto', 'Devuelto'])->default('Pendiente');
             $table->text('observacion')->nullable();
             $table->boolean('pagado')->default(false);
+            $table->string('gestion')->nullable();
             $table->timestamps();
         });
     }

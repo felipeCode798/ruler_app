@@ -18,6 +18,7 @@ use App\Models\CategoryRevocation;
 use App\Models\LicensesSetupCategory;
 use App\Models\SchoolSetup;
 use App\Models\PinsProcess;
+use App\Models\ComisionProcesos;
 use Spatie\Permission\Models\Role;
 use Filament\Forms\Set;
 use Filament\Forms\Get;
@@ -80,11 +81,109 @@ class ProcesoResource extends Resource
             $set('value_enlistment', $total);
         }
 
+        function getDni(Set $set, Get $get) {
+            $userId = $get('user_id');
+            $user = User::find($userId);
+            $dni = $user->dni ?? 'N/A';
+            $set('dni', $dni);
+        }
+
+        function handleGestion(Set $set, Get $get) {
+            $gestion = $get('gestion');
+            $userId = $get('user_id');
+
+            if ($gestion === 'Cliente') {
+                getDni($set, $get);
+                $set('dni_disabled', true);
+            } else {
+                $set('dni_disabled', false);
+            }
+        }
+
+        function calculateCommissionPruea(Set $set, Get $get) {
+            $userId = $get('../../user_id');
+            $processor = User::find($userId);
+
+            if (!$processor) {
+                $set('total_value_paymet', 10);
+                return;
+            }
+
+            $processCategoryId = $get('processcategory_id');
+            $proceso = RegistrarProceso::find($processCategoryId);
+            $prueba = 'comparendo';
+
+            //if (!$proceso) {
+            //    $set('total_value_paymet', 0);
+            //    return;
+            //}
+
+            if ($get('../../gestion') === 'Tramitador') {
+                switch ($proceso->processcategory_id) {
+                    case 1:
+                        $categoria = 'cobro_coactivo';
+                        break;
+                    case 2:
+                        $categoria = 'adedudo';
+                        break;
+                    case 3:
+                        $categoria = 'sin_resolucion';
+                        break;
+                    case 4:
+                        $categoria = 'acuedo_pago';
+                        break;
+                    case 5:
+                        $categoria = 'prescripcion';
+                        break;
+                    case 6:
+                        $categoria = 'comparendo';
+                        break;
+                    case 7:
+                        $categoria = 'controverisa';
+                        break;
+                    case 8:
+                        $categoria = 'curso';
+                        break;
+                    case 9:
+                        $categoria = 'licencia';
+                        break;
+                    case 10:
+                        $categoria = 'renovacion';
+                        break;
+                    default:
+                        $categoria = '';
+                        break;
+                }
+
+                $commission = ComisionProcesos::where('user_id', $processor->id)->value($categoria);
+
+                if (!$commission) {
+                    $commission = 0;
+                }
+
+                $commissionTotal = $get('valor_comparendo') * ($commission / 100);
+                $set('total_value_paymet', $commissionTotal);
+            }else{
+                $set('total_value_paymet', 0);
+            }
+
+        }
+
         return $form
             ->schema([
                 Forms\Components\Group::make()->schema([
-
-                    Forms\Components\Section::make('Informacion del Proceso')->schema([
+                    Forms\Components\Section::make('Informacion del Gestion')->schema([
+                        Forms\Components\Select::make('gestion')
+                            ->label('Gestion')
+                            ->placeholder('Seleccione una enrrolamiento')
+                            ->columnSpan(4)
+                            ->options([
+                                'Cliente' => 'Cliente',
+                                'Tramitador' => 'Tramitador',
+                            ])
+                            ->live(),
+                    ]),
+                    Forms\Components\Section::make('Informacion del Cliente')->schema([
                         Forms\Components\Select::make('user_id')
                         ->label('Cedula')
                         ->placeholder('Seleccione un documento')
@@ -102,12 +201,14 @@ class ProcesoResource extends Resource
                             $set('name', $user->name ?? '');
                             $set('email', $user->email ?? '');
                             $set('phone', $user->phone ?? '');
+                            $set('dni', $user->dni ?? '');
                         })
                         ->afterStateHydrated(function (Set $set, Get $get) {
                             $user = User::find($get('user_id'));
                             $set('name', $user->name ?? '');
                             $set('email', $user->email ?? '');
                             $set('phone', $user->phone ?? '');
+                            $set('dni', $user->dni ?? '');
                         })
                         ->createOptionForm([
                             Forms\Components\TextInput::make('name')
@@ -145,18 +246,46 @@ class ProcesoResource extends Resource
                             ->label('Email')
                             ->live()
                             ->disabled()
-                            ->required()
                             ->email()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('phone')
                             ->label('Teléfono')
                             ->live()
                             ->disabled()
-                            ->required()
                             ->numeric()
                             ->maxLength(11),
-                    ])->columns(3),
-
+                        Forms\Components\TextInput::make('dni')
+                            ->label('Cedula')
+                            ->live()
+                            ->hidden()
+                            ->required()
+                            ->numeric(),
+                    ])
+                    ->hidden(function (Get $get) {
+                        $gestion= $get('gestion');
+                        return $gestion !== 'Cliente';
+                    })
+                    ->columns(3),
+                    Forms\Components\Section::make('Informacion del Tramitador')->schema([
+                        Forms\Components\Select::make('user_id')
+                        ->label('Tramitador')
+                        ->placeholder('Seleccione un documento')
+                        ->relationship('client', 'name', function ($query) {
+                            $query->whereHas('roles', function ($roleQuery) {
+                                $roleQuery->where('name', 'tramitador');
+                            });
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->columnSpan('full')
+                        ->live()
+                    ])
+                    ->hidden(function (Get $get) {
+                        $gestion= $get('gestion');
+                        return $gestion !== 'Tramitador';
+                    })
+                    ->columns(3),
                     Forms\Components\Section::make('Procesos')->schema([
                         Forms\Components\Repeater::make('proceso')
                             ->relationship('proceso')
@@ -167,7 +296,21 @@ class ProcesoResource extends Resource
                                     ->preload()
                                     ->columnSpan(12)
                                     ->relationship('processcategory', 'name')
-                                    ->reactive(),
+                                    ->reactive()
+                                    ->afterStateUpdated(function (Set $set, Get $get) {
+                                        $dni = $get('../../dni');
+                                        $set('dni', $dni);
+                                    }),
+                                Forms\Components\TextInput::make('dni')
+                                    ->label('Celuda')
+                                    ->live()
+                                    ->disabled(function (Get $get) {
+                                        $gestion = $get('../../gestion');
+                                        return $gestion !== 'Tramitador';
+                                    })
+                                    ->dehydrated(true)
+                                    ->maxLength(11)
+                                    ->columnSpan(12),
                                 Forms\Components\Select::make('categoryrevocation_id')
                                     ->label('Categoria')
                                     ->searchable()
@@ -204,9 +347,14 @@ class ProcesoResource extends Resource
                                         Forms\Components\TextInput::make('valor_comparendo')
                                             ->label('Valor Comparendos')
                                             ->numeric()
+                                            //->reactive()
+                                            ->live(onBlur: true)
+                                            ->dehydrated()
+                                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                                calculateCommissionPruea($set, $get);
+                                            })
                                             ->required()
-                                            ->columnSpan(12)
-                                            ->dehydrated(),
+                                            ->columnSpan(12),
                                         Forms\Components\DatePicker::make('date_resolution')
                                             ->label('Fecha de Resolución')
                                             ->hidden(function (Get $get) {
@@ -377,6 +525,7 @@ class ProcesoResource extends Resource
                                         }),
                                     Forms\Components\TextInput::make('total_value_paymet')
                                         ->label('Valor')
+                                        ->live(onBlur: true)
                                         ->numeric()
                                         ->required()
                                         ->columnSpan(6)
@@ -393,9 +542,10 @@ class ProcesoResource extends Resource
                                         ->required()
                                         ->columnSpan(6)
                                         ->searchable(),
-                            ])->columns(12)
+                            ])
+                            ->columns(12)
                             ->columnSpan(12)
-                            ->addActionLabel('Agregar Controversia'),
+                            ->addActionLabel('Agregar Proceso'),
 
                             Forms\Components\Placeholder::make('grand_value_placeholder')
                                 ->label('Valor Total')
@@ -476,6 +626,7 @@ class ProcesoResource extends Resource
                             ]),
                         Forms\Components\Textarea::make('observacion')
                             ->label('Observaciones')
+                            ->live()
                             ->maxLength(255)
                             ->columnSpan('full'),
                         Forms\Components\Toggle::make('pagado')
@@ -538,16 +689,6 @@ class ProcesoResource extends Resource
                         ->action(function ($record) {
                             return redirect()->route('procesos.pdf', $record->id);
                         }),
-                    // Tables\Actions\Action::make('Documentos')
-                    //     ->label('Estado de Cuenta')
-                    //     ->hidden(function (Proceso $proceso) {
-                    //         return !$proceso->estado_cuenta;
-                    //     })
-                    //     ->action(function (Proceso $proceso) {
-                    //         return redirect()->route('estado.de.cuenta.download', [
-                    //             'filename' => $proceso->estado_cuenta,
-                    //         ]);
-                    //     }),
                     Tables\Actions\Action::make('whatsapp')
                         ->label('Enviar PDF por WhatsApp')
                         ->color('success')

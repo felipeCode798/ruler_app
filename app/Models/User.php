@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Expense::class, 'responsible_id');
     }
+
+    public function comisionProcesos()
+    {
+        return $this->hasMany(ComisionProcesos::class);
+    }
 }

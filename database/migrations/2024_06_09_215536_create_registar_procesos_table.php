@@ -45,6 +45,7 @@ return new class extends Migration
             $table->integer('total_value_paymet')->nullable();
             $table->string('status_subpoema')->nullable();
             $table->boolean('pagado')->default(false);
+            $table->integer('dni')->nullable();
             $table->timestamps();
         });
     }

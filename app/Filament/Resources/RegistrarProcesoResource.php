@@ -471,6 +471,9 @@ class RegistrarProcesoResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('proceso.gestion')
+                    ->label('Gestion')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('proceso.user.name')
                     ->label('Nombre')
                     ->sortable(),

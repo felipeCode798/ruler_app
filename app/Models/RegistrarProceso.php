@@ -46,7 +46,8 @@ class RegistrarProceso extends Model
         'ap',
         'total_value_paymet',
         'status_subpoema',
-        'pagado'
+        'pagado',
+        'dni'
     ];
 
     protected $casts = [

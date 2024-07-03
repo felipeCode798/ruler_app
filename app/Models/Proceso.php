@@ -24,7 +24,8 @@ class Proceso extends Model
         'gran_total',
         'estado',
         'observacion',
-        'estado',
+        'pagado',
+        'gestion'
     ];
 
     protected $casts = [

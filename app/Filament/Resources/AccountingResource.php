@@ -36,7 +36,7 @@ class AccountingResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $tramitadorRole = Role::where('name', 'tramitador')->first();
+        $tramitadorRole = Role::where('name', 'colaborador')->first();
         $tramitadores = $tramitadorRole ? User::role($tramitadorRole)->get() : collect();
 
         return $form

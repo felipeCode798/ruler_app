@@ -14,9 +14,17 @@ return new class extends Migration
         Schema::create('licenses_setup_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('price');
-            $table->integer('price_renewal');
-            $table->boolean('is_active')->default(false);
+            $table->enum('type', ['normal', 'renovation'])->default('normal');
+            $table->integer('price_exam')->nullable();
+            $table->integer('price_slide')->nullable();
+            $table->integer('school_letter')->nullable();
+            $table->integer('price_fees')->nullable();
+            $table->integer('price_no_course')->nullable();
+            $table->integer('price_renewal_exam_client')->nullable();
+            $table->integer('price_renewal_exam_slide_client')->nullable();
+            $table->integer('price_renewal_exam_processor')->nullable();
+            $table->integer('price_renewal_exam_slide_processor')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

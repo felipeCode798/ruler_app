@@ -66,19 +66,49 @@ class ProcesoResource extends Resource
 
         function calculateTotalCategory(Set $set, Get $get) {
             $categories = $get('categoria_licencias');
+            $isRenovation = $get('processcategory_id') == '10';
 
-            if (!is_array($categories)) {
-                $categories = [];
-            }
+            // Solo considerar valor_carta_escuela si no es renovación
+            $valorCartaEscuela = $isRenovation ? 0 : ($get('valor_carta_escuela') ?? 0);
+            $valorExamen = ($get('examen_medico') === 'No aplica') ? 0 : ($get('valor_examen') ?? 0);
+            $valorImpresion = ($get('impresion') === 'No aplica') ? 0 : ($get('valor_impresion') ?? 0);
+            $valorSinCurso = ($get('sin_curso') === 'No aplica') ? 0 : ($get('valor_sin_curso') ?? 0);
 
-            $total = 0;
+            $total = $valorCartaEscuela + $valorExamen + $valorImpresion + $valorSinCurso;
 
-            foreach ($categories as $categoryId) {
-                $price = LicensesSetupCategory::where('name', $categoryId)->value('price');
-                $total += $price;
+            if ($isRenovation) {
+                // Calcular valor de renovación según tipo y gestión
+                $tipoRenovacion = $get('tipo_renovacion');
+                $isCliente = $get('../../gestion') === 'Cliente';
+
+                foreach ($categories as $categoryId) {
+                    $category = LicensesSetupCategory::where('name', $categoryId)->first();
+
+                    if ($tipoRenovacion == 'solo_examen') {
+                        $price = $isCliente ?
+                            ($category->price_renewal_exam_client ?? 0) :
+                            ($category->price_renewal_exam_processor ?? 0);
+                    } else {
+                        $price = $isCliente ?
+                            ($category->price_renewal_exam_slide_client ?? 0) :
+                            ($category->price_renewal_exam_slide_processor ?? 0);
+                    }
+
+                    $total += $price;
+                    $set('valor_renovacion', $price); // Mostrar el valor unitario
+                }
+            } else {
+                // Cálculo normal para licencias nuevas
+                if (is_array($categories)) {
+                    foreach ($categories as $categoryId) {
+                        $price = LicensesSetupCategory::where('name', $categoryId)->value('price') ?? 0;
+                        $total += $price;
+                    }
+                }
             }
 
             $set('value_enlistment', $total);
+            $set('total_value_paymet', $total);
         }
 
         function getDni(Set $set, Get $get) {
@@ -110,63 +140,41 @@ class ProcesoResource extends Resource
             }
 
             $processCategoryId = $get('processcategory_id');
-            $proceso = RegistrarProceso::find($processCategoryId);
-            $prueba = 'comparendo';
+            $valorComparendo = $get('valor_comparendo') ?? 0;
+            $porcentajeDescuento = $get('porcentaje_descuento') ?? 0;
 
-            //if (!$proceso) {
-            //    $set('total_value_paymet', 0);
-            //    return;
-            //}
-
-            if ($get('../../gestion') === 'Tramitador') {
-                switch ($proceso->processcategory_id) {
-                    case 1:
-                        $categoria = 'cobro_coactivo';
-                        break;
-                    case 2:
-                        $categoria = 'adedudo';
-                        break;
-                    case 3:
-                        $categoria = 'sin_resolucion';
-                        break;
-                    case 4:
-                        $categoria = 'acuedo_pago';
-                        break;
-                    case 5:
-                        $categoria = 'prescripcion';
-                        break;
-                    case 6:
-                        $categoria = 'comparendo';
-                        break;
-                    case 7:
-                        $categoria = 'controverisa';
-                        break;
-                    case 8:
-                        $categoria = 'curso';
-                        break;
-                    case 9:
-                        $categoria = 'licencia';
-                        break;
-                    case 10:
-                        $categoria = 'renovacion';
-                        break;
-                    default:
-                        $categoria = '';
-                        break;
-                }
-
-                $commission = ComisionProcesos::where('user_id', $processor->id)->value($categoria);
-
-                if (!$commission) {
-                    $commission = 0;
-                }
-
-                $commissionTotal = $get('valor_comparendo') * ($commission / 100);
-                $set('total_value_paymet', $commissionTotal);
-            }else{
-                $set('total_value_paymet', 0);
+            // Aplicar descuento al valor del comparendo
+            $valorConDescuento = $valorComparendo;
+            if ($porcentajeDescuento > 0) {
+                $descuento = $valorComparendo * ($porcentajeDescuento / 100);
+                $valorConDescuento = $valorComparendo - $descuento;
             }
 
+            if ($get('../../gestion') === 'Tramitador') {
+                switch ($processCategoryId) {
+                    case 1: // cobro_coactivo
+                    case 2: // adedudo
+                    case 4: // acuedo_pago
+                    case 5: // prescripcion
+                        $categoria = match($processCategoryId) {
+                            1 => 'cobro_coactivo',
+                            2 => 'adedudo',
+                            4 => 'acuedo_pago',
+                            5 => 'prescripcion',
+                            default => ''
+                        };
+
+                        $commission = ComisionProcesos::where('user_id', $processor->id)->value($categoria) ?? 0;
+                        $commissionTotal = $valorConDescuento * ($commission / 100);
+                        $set('total_value_paymet', $commissionTotal);
+                        break;
+                    default:
+                        $set('total_value_paymet', $valorConDescuento);
+                        break;
+                }
+            } else {
+                $set('total_value_paymet', $valorConDescuento);
+            }
         }
 
         return $form
@@ -354,7 +362,30 @@ class ProcesoResource extends Resource
                                                 calculateCommissionPruea($set, $get);
                                             })
                                             ->required()
-                                            ->columnSpan(12),
+                                            ->columnSpan(6),
+                                        Forms\Components\TextInput::make('porcentaje_descuento')
+                                            ->label('Porcentaje Descuento (%)')
+                                            ->suffix('%')
+                                            ->numeric()
+                                            ->minValue(0)
+                                            ->maxValue(100)
+                                            ->live(onBlur: true)
+                                            ->hidden(function (Get $get) {
+                                                    // Solo mostrar para: cobro coactivo (1), adeudo (2), acuerdo de pago (4), prescripción (5)
+                                                    $visibleCategories = ['1', '2', '4', '5'];
+                                                    return !in_array($get('processcategory_id'), $visibleCategories);
+                                                })
+                                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                                $valorComparendo = $get('valor_comparendo');
+                                                $porcentaje = $get('porcentaje_descuento');
+
+                                                if ($valorComparendo && $porcentaje) {
+                                                    $descuento = $valorComparendo * ($porcentaje / 100);
+                                                    $valorFinal = $valorComparendo - $descuento;
+                                                    $set('total_value_paymet', $valorFinal);
+                                                }
+                                            })
+                                            ->columnSpan(6),
                                         Forms\Components\DatePicker::make('date_resolution')
                                             ->label('Fecha de Resolución')
                                             ->hidden(function (Get $get) {
@@ -390,7 +421,12 @@ class ProcesoResource extends Resource
                                     ->schema([
                                         Forms\Components\CheckboxList::make('categoria_licencias')
                                             ->label('Categoría')
-                                            ->options(LicensesSetupCategory::pluck('name', 'name')->toArray())
+                                            ->options(function (Get $get) {
+                                                $isRenovation = $get('processcategory_id') == '10';
+                                                return LicensesSetupCategory::where('type', $isRenovation ? 'renovation' : 'normal')
+                                                    ->pluck('name', 'name')
+                                                    ->toArray();
+                                            })
                                             ->required()
                                             ->columns(4)
                                             ->columnSpan(12)
@@ -402,11 +438,45 @@ class ProcesoResource extends Resource
                                                 calculateTotalCategory($set, $get);
                                             })
                                             ->gridDirection('row'),
+
+                                        // Nueva sección para renovaciones
+                                        Forms\Components\Section::make('Opciones de Renovación')
+                                            ->columns(12)
+                                            ->schema([
+                                                Forms\Components\Select::make('tipo_renovacion')
+                                                    ->label('Tipo de Renovación')
+                                                    ->options([
+                                                        'solo_examen' => 'Solo examen',
+                                                        'examen_lamina' => 'Examen y lámina'
+                                                    ])
+                                                    ->live()
+                                                    ->required()
+                                                    ->columnSpan(6)
+                                                    ->afterStateUpdated(function (Set $set, Get $get) {
+                                                        calculateTotalCategory($set, $get);
+                                                    })
+                                                    ->hidden(fn (Get $get) => $get('processcategory_id') != '10'),
+
+                                                Forms\Components\TextInput::make('valor_renovacion')
+                                                    ->label('Valor Renovación')
+                                                    ->prefix('$')
+                                                    ->numeric()
+                                                    ->columnSpan(6)
+                                                    ->disabled()
+                                                    ->dehydrated()
+                                                    ->required()
+                                                    ->hidden(fn (Get $get) => $get('processcategory_id') != '10'),
+                                            ])
+                                            ->hidden(fn (Get $get) => $get('processcategory_id') != '10'),
+
+                                        // Campos ocultos para renovaciones
                                         Forms\Components\Select::make('escula')
                                             ->label('Escuela')
                                             ->placeholder('Seleccione una escuela')
                                             ->options(SchoolSetup::pluck('name_school','id')->toArray())
-                                            ->columnSpan(4),
+                                            ->columnSpan(4)
+                                            ->hidden(fn (Get $get) => $get('processcategory_id') == '10'),
+
                                         Forms\Components\Select::make('enrrolamiento')
                                             ->label('Enrrolamiento')
                                             ->placeholder('Seleccione una enrrolamiento')
@@ -417,7 +487,9 @@ class ProcesoResource extends Resource
                                                 'Abono' => 'Abono',
                                                 'Pagado' => 'Pagado',
                                             ])
-                                            ->live(),
+                                            ->live()
+                                            ->hidden(fn (Get $get) => $get('processcategory_id') == '10'),
+
                                         Forms\Components\TextInput::make('valor_carta_escuela')
                                             ->label('Valor Carta Escuela')
                                             ->columnSpan(4)
@@ -425,13 +497,17 @@ class ProcesoResource extends Resource
                                             ->disabled()
                                             ->dehydrated()
                                             ->required()
-                                            ->numeric(),
+                                            ->numeric()
+                                            ->hidden(fn (Get $get) => $get('processcategory_id') == '10'),
+
                                         Forms\Components\Select::make('pin')
                                             ->label('Pines')
                                             ->columnSpan(12)
                                             ->placeholder('Seleccione una escuela')
-                                            ->options(PinsProcess::pluck('name','id')->toArray()),
-                                    ])->hidden(function (Get $get) {
+                                            ->options(PinsProcess::pluck('name','id')->toArray())
+                                            ->hidden(fn (Get $get) => $get('processcategory_id') == '10'),
+                                    ])
+                                    ->hidden(function (Get $get) {
                                         $visibleCategories = ['9', '10'];
                                         return !in_array($get('processcategory_id'), $visibleCategories);
                                     }),
@@ -442,26 +518,43 @@ class ProcesoResource extends Resource
                                             ->label('Exámenes médicos')
                                             ->placeholder('Seleccione un estado')
                                             ->options([
+                                                'No aplica' => 'No aplica',
                                                 'Pendiente' => 'Pendiente',
                                                 'Finalizado' => 'Finalizado',
                                                 'Devuelto' => 'Devuelto'
                                             ])
-                                            ->columnSpan(6),
+                                            ->columnSpan(6)
+                                            ->live()
+                                            ->afterStateUpdated(function (Set $set, $state) {
+                                                if ($state === 'No aplica') {
+                                                    $set('valor_examen', 0);
+                                                }
+                                            }),
                                         Forms\Components\Select::make('impresion')
                                             ->label('Impresión')
                                             ->placeholder('Seleccione un estado')
                                             ->options([
+                                                'No aplica' => 'No aplica',
                                                 'Pendiente' => 'Pendiente',
                                                 'Finalizado' => 'Finalizado',
                                                 'Devuelto' => 'Devuelto'
                                             ])
-                                            ->columnSpan(6),
+                                            ->columnSpan(6)
+                                            ->live()
+                                            ->afterStateUpdated(function (Set $set, $state) {
+                                                if ($state === 'No aplica') {
+                                                    $set('valor_impresion', 0);
+                                                }
+                                            }),
                                         Forms\Components\TextInput::make('valor_examen')
                                             ->label('Valor exámenes')
                                             ->prefix('$')
                                             ->numeric()
                                             ->columnSpan(6)
                                             ->maxLength(11)
+                                            ->disabled(function (Get $get) {
+                                                return $get('examen_medico') === 'No aplica';
+                                            })
                                             ->live(),
                                         Forms\Components\TextInput::make('valor_impresion')
                                             ->label('Valor impresión')
@@ -469,16 +562,37 @@ class ProcesoResource extends Resource
                                             ->numeric()
                                             ->columnSpan(6)
                                             ->maxLength(11)
+                                            ->disabled(function (Get $get) {
+                                                return $get('impresion') === 'No aplica';
+                                            })
+                                            ->live(),
+                                        Forms\Components\Select::make('sin_curso')  // <-- Esta es la línea corregida
+                                            ->label('Sin Curso')
+                                            ->placeholder('Seleccione una opción')
+                                            ->options([
+                                                'No aplica' => 'No aplica',
+                                                'Aplica' => 'Aplica'
+                                            ])
+                                            ->columnSpan(6)
+                                            ->live()
+                                            ->afterStateUpdated(function (Set $set, $state) {
+                                                if ($state === 'No aplica') {
+                                                    $set('valor_sin_curso', 0);
+                                                }
+                                            }),
+                                        Forms\Components\TextInput::make('valor_sin_curso')
+                                            ->label('Valor Sin Curso')
+                                            ->prefix('$')
+                                            ->numeric()
+                                            ->columnSpan(6)
+                                            ->maxLength(11)
+                                            ->disabled(function (Get $get) {
+                                                return $get('sin_curso') === 'No aplica';
+                                            })
                                             ->live(),
                                     ])->hidden(function (Get $get) {
                                         $processCategoryId = $get('processcategory_id');
-
-                                        if($processCategoryId === '9'){
-                                            return false;
-                                        }else if($processCategoryId === '10'){
-                                            return false;
-                                        }
-                                        return true;
+                                        return !in_array($processCategoryId, ['9']);
                                     }),
                                 Forms\Components\Section::make('Información de la Controversia')
                                     ->columns(12)
@@ -660,6 +774,11 @@ class ProcesoResource extends Resource
                         return null;
                     })
                     ->openUrlInNewTab()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('proceso.porcentaje_descuento')
+                    ->label('Descuento')
+                    ->suffix('%')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\SelectColumn::make('estado')

@@ -4,25 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use  Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CategoryRevocation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'comparing_value',
-        'comparing_value_discount',
-        'fee_value',
-        'transit_value',
-        'cia_value',
-        'cia_discount_value',
-        'cia_total_value',
-        'process_value',
-        'is_active',
-        'price',
-        'slug'
+        'code',
+        'smld_value',
+        'subpoena_value',
+        'cia_value_50',
+        'transit_pay_50',
+        'total_discount_50',
+        'cia_value_20',
+        'transit_pay_20',
+        'total_discount_20',
+        'standard_value',
+        'is_active'
     ];
 
     public function revocation(): HasMany
@@ -44,5 +43,4 @@ class CategoryRevocation extends Model
     {
         return $this->hasMany(RegistrarProceso::class);
     }
-
 }

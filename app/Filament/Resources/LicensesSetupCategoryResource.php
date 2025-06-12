@@ -26,24 +26,87 @@ class LicensesSetupCategoryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Información de la Categoria de Licencia')
+                Forms\Components\Section::make('Información de la Categoría')
                     ->columns(3)
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                        ->label('Categoria de Licencia')
-                        ->required()
-                        ->maxLength(191),
-                        Forms\Components\TextInput::make('price')
-                            ->label('Precio')
+                            ->label('Nombre de la Categoría')
                             ->required()
-                            ->numeric()
-                            ->prefix('$'),
-                        Forms\Components\TextInput::make('price_renewal')
-                            ->label('Precio Renovación')
+                            ->maxLength(191),
+
+                        Forms\Components\Select::make('type')
+                            ->label('Tipo de Categoría')
+                            ->options([
+                                'normal' => 'Normal',
+                                'renovation' => 'Renovación',
+                            ])
                             ->required()
-                            ->numeric()
-                            ->prefix('$'),
+                            ->reactive(),
+
+                        Forms\Components\Toggle::make('is_active')
+                            ->label('Activo')
+                            ->default(true),
                     ]),
+
+                Forms\Components\Section::make('Precios para Categoría Normal')
+                    ->columns(5)
+                    ->schema([
+                        Forms\Components\TextInput::make('price_exam')
+                            ->label('Examen Médico')
+                            ->numeric()
+                            ->prefix('$'),
+
+                        Forms\Components\TextInput::make('price_slide')
+                            ->label('Lámina')
+                            ->numeric()
+                            ->prefix('$'),
+
+                        Forms\Components\TextInput::make('school_letter')
+                            ->label('Carta Escuela')
+                            ->numeric()
+                            ->prefix('$'),
+
+                        Forms\Components\TextInput::make('price_fees')
+                            ->label('Honorarios')
+                            ->numeric()
+                            ->prefix('$'),
+
+                        Forms\Components\TextInput::make('price_no_course')
+                            ->label('Sin Curso')
+                            ->numeric()
+                            ->prefix('$'),
+                    ])
+                    ->hidden(fn ($get) => $get('type') !== 'normal'),
+
+                Forms\Components\Section::make('Precios para Renovación - Cliente')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('price_renewal_exam_client')
+                            ->label('Solo Examen')
+                            ->numeric()
+                            ->prefix('$'),
+
+                        Forms\Components\TextInput::make('price_renewal_exam_slide_client')
+                            ->label('Examen y Lámina')
+                            ->numeric()
+                            ->prefix('$'),
+                    ])
+                    ->hidden(fn ($get) => $get('type') !== 'renovation'),
+
+                Forms\Components\Section::make('Precios para Renovación - Tramitador')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('price_renewal_exam_processor')
+                            ->label('Solo Examen')
+                            ->numeric()
+                            ->prefix('$'),
+
+                        Forms\Components\TextInput::make('price_renewal_exam_slide_processor')
+                            ->label('Examen y Lámina')
+                            ->numeric()
+                            ->prefix('$'),
+                    ])
+                    ->hidden(fn ($get) => $get('type') !== 'renovation'),
             ]);
     }
 
@@ -52,32 +115,34 @@ class LicensesSetupCategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Categoria de Licencia')
+                    ->label('Categoría')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->label('Precio')
-                    ->money()
+
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipo')
+                    ->formatStateUsing(fn (string $state): string => $state === 'normal' ? 'Normal' : 'Renovación')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('price_renewal')
-                    ->label('Precio Renovación')
-                    ->money()
-                    ->sortable(),
+
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Activo')
+                    ->boolean(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Filters\SelectFilter::make('type')
+                    ->options([
+                        'normal' => 'Normal',
+                        'renovation' => 'Renovación',
+                    ])
+                    ->label('Tipo de Categoría'),
+
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('Estado Activo'),
             ]);
     }
 

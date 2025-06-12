@@ -13,29 +13,48 @@ class LicensesSetupSeeder extends Seeder
      */
     public function run(): void
     {
+        // Categorías normales
         LicensesSetupCategory::create([
             'name' => 'A2',
-            'price' => '450000',
-            'price_renewal' => '150000'
+            'type' => 'normal',
+            'price_exam' => 100000,
+            'price_slide' => 150000,
+            'school_letter' =>100000,
+            'price_fees' => 200000,
+            'price_no_course' => 450000,
+            'is_active' => true
         ]);
 
         LicensesSetupCategory::create([
             'name' => 'B1',
-            'price' => '750000',
-            'price_renewal' => '400000'
+            'type' => 'normal',
+            'price_exam' => 150000,
+            'price_slide' => 200000,
+            'school_letter' =>100000,
+            'price_fees' => 250000,
+            'price_no_course' => 750000,
+            'is_active' => true
+        ]);
+
+        // Categorías de renovación
+        LicensesSetupCategory::create([
+            'name' => 'Renovación A2',
+            'type' => 'renovation',
+            'price_renewal_exam_client' => 80000,
+            'price_renewal_exam_slide_client' => 120000,
+            'price_renewal_exam_processor' => 70000,
+            'price_renewal_exam_slide_processor' => 110000,
+            'is_active' => true
         ]);
 
         LicensesSetupCategory::create([
-            'name' => 'C1',
-            'price' => '800000',
-            'price_renewal' => '600000'
+            'name' => 'Renovación B1',
+            'type' => 'renovation',
+            'price_renewal_exam_client' => 120000,
+            'price_renewal_exam_slide_client' => 180000,
+            'price_renewal_exam_processor' => 110000,
+            'price_renewal_exam_slide_processor' => 170000,
+            'is_active' => true
         ]);
-
-        LicensesSetupCategory::create([
-            'name' => 'C2',
-            'price' => '900000',
-            'price_renewal' => '800000'
-        ]);
-
     }
 }

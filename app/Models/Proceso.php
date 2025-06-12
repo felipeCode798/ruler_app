@@ -21,6 +21,7 @@ class Proceso extends Model
         'valor_comision',
         'estado_cuenta',
         'value_received',
+        'porcentaje_descuento',
         'gran_total',
         'estado',
         'observacion',

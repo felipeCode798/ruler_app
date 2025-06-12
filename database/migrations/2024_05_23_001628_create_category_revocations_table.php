@@ -13,17 +13,22 @@ return new class extends Migration
     {
         Schema::create('category_revocations', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->integer('comparing_value');
-            $table->integer('comparing_value_discount');
-            $table->integer('fee_value')->nullable();
-            $table->integer('transit_value');
-            $table->integer('cia_value');
-            $table->integer('cia_discount_value')->nullable()->default(0);
-            $table->integer('cia_total_value');
-            $table->integer('price')->nullable();
-            $table->boolean('is_active')->default(false);
-            $table->string('slug')->unique();
+            $table->string('code')->unique(); // A, B, C, etc.
+            $table->integer('smld_value'); // Valor SMLD
+            $table->integer('subpoena_value'); // Valor Comparendo
+
+            // Valores con 50% de descuento
+            $table->integer('cia_value_50'); // Valor CIA con 50% descuento
+            $table->integer('transit_pay_50'); // Valor a pagar transito 50%
+            $table->integer('total_discount_50'); // Valor total descuento 50%
+
+            // Valores con 20% de descuento
+            $table->integer('cia_value_20'); // Valor CIA con 20% descuento
+            $table->integer('transit_pay_20'); // Valor a pagar transito 20%
+            $table->integer('total_discount_20'); // Valor total descuento 20%
+
+            $table->integer('standard_value'); // Valor tabulado
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -18,7 +18,8 @@ return new class extends Migration
             $table->foreignId('responsible_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('valor_comision')->nullable();
             $table->json('estado_cuenta')->nullable();
-            $table->integer('valor_resivido')->nullable();
+            $table->integer('value_received')->nullable();
+            $table->integer('porcentaje_descuento')->nullable();
             $table->integer('gran_total')->nullable();
             $table->enum('estado', ['Pendiente', 'En Proceso', 'En Tramite', 'Resulto', 'Devuelto'])->default('Pendiente');
             $table->text('observacion')->nullable();

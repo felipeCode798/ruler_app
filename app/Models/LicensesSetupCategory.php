@@ -11,7 +11,16 @@ class LicensesSetupCategory extends Model
 
     protected $fillable = [
         'name',
-        'price',
-        'price_renewal'
+        'type',
+        'price_exam',
+        'price_slide',
+        'school_letter',
+        'price_fees',
+        'price_no_course',
+        'price_renewal_exam_client',
+        'price_renewal_exam_slide_client',
+        'price_renewal_exam_processor',
+        'price_renewal_exam_slide_processor',
+        'is_active'
     ];
 }

@@ -53,14 +53,14 @@ class Proceso extends Model
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    public function proceso(): HasMany
+    public function registrarProcesos(): HasMany
     {
         return $this->hasMany(RegistrarProceso::class);
     }
 
-    public function registrarProcesos(): HasMany
+    public function proceso(): HasMany
     {
-        return $this->hasMany(RegistrarProceso::class,);
+        return $this->hasMany(RegistrarProceso::class);
     }
 
     public function processCategory(): BelongsTo

@@ -545,7 +545,7 @@ class RegistrarProcesoResource extends Resource
                     ->label('Simit')
                     ->rules(['numeric'])
                     ->sortable(),
-                Tables\Columns\TextColumn::make('escula')
+                Tables\Columns\TextColumn::make('escuela')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('enrrolamiento')

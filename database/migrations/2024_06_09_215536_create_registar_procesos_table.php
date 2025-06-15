@@ -17,12 +17,13 @@ return new class extends Migration
             $table->foreignId('processcategory_id')->nullable()->constrained('process_categories')->cascadeOnDelete();
             $table->integer('simit')->nullable();
             $table->foreignId('categoryrevocation_id')->nullable()->constrained('category_revocations')->cascadeOnDelete();
-            $table->foreignId('lawyer_id')->nullable()->constrained('lawyers')->cascadeOnDelete()->nullable();
-            $table->foreignId('filter_id')->nullable()->constrained('filters')->cascadeOnDelete()->nullable();
+            $table->foreignId('lawyer_id')->nullable()->constrained('lawyers')->cascadeOnDelete();
+            $table->foreignId('filter_id')->nullable()->constrained('filters')->cascadeOnDelete();
+            $table->foreignId('coursecategory_id')->nullable()->constrained('course_categories')->cascadeOnDelete();
             $table->integer('pago_abogado')->nullable();
             $table->integer('pago_filtro')->nullable();
             $table->json('categoria_licencias')->nullable();
-            $table->string('escula')->nullable();
+            $table->string('escuela')->nullable();
             $table->string('enrrolamiento')->nullable();
             $table->integer('valor_carta_escuela')->nullable();
             $table->integer('pin')->nullable();
@@ -46,6 +47,18 @@ return new class extends Migration
             $table->string('status_subpoema')->nullable();
             $table->boolean('pagado')->default(false);
             $table->integer('dni')->nullable();
+            $table->integer('porcentaje_descuento')->nullable();
+            $table->integer('valor_total_descuento')->nullable();
+            $table->boolean('descuento_50')->nullable();
+            $table->boolean('descuento_20')->nullable();
+            $table->boolean('descuento_25')->nullable();
+            $table->integer('valor_tabulado')->nullable();
+            $table->integer('valor')->nullable();
+            $table->string('tipo_renovacion')->nullable();
+            $table->integer('valor_renovacion')->nullable();
+            $table->string('sin_curso')->nullable();
+            $table->integer('valor_sin_curso')->nullable();
+            $table->integer('value_enlistment')->nullable();
             $table->timestamps();
         });
     }

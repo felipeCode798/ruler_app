@@ -20,10 +20,11 @@ class RegistrarProceso extends Model
         'categoryrevocation_id',
         'lawyer_id',
         'filter_id',
+        'coursecategory_id',
         'pago_abogado',
         'pago_filtro',
         'categoria_licencias',
-        'escula',
+        'escuela',
         'enrrolamiento',
         'school',
         'valor_carta_escuela',
@@ -32,10 +33,22 @@ class RegistrarProceso extends Model
         'impresion',
         'valor_examen',
         'valor_impresion',
+        'sin_curso',
+        'valor_sin_curso',
+        'value_enlistment',
+        'tipo_renovacion',
+        'valor_renovacion',
         'comparendo',
         'valor_comparendo',
+        'porcentaje_descuento',
+        'descuento_50',
+        'descuento_20',
+        'descuento_25',
         'valor_cia',
         'valor_transito',
+        'valor_tabulado',
+        'valor_total_descuento',
+        'valor',
         'codigo',
         'ventana',
         'cita',
@@ -52,7 +65,10 @@ class RegistrarProceso extends Model
 
     protected $casts = [
         'categoria_licencias' => 'array',
-        'comparendo' => 'array'
+        'comparendo' => 'array',
+        'descuento_50' => 'boolean',
+        'descuento_20' => 'boolean',
+        'descuento_25' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -88,6 +104,11 @@ class RegistrarProceso extends Model
     public function categoryRevocation(): BelongsTo
     {
         return $this->belongsTo(CategoryRevocation::class, 'categoryrevocation_id');
+    }
+
+    public function courseCategory(): BelongsTo
+    {
+        return $this->belongsTo(CourseCategory::class, 'coursecategory_id');
     }
 
     public function lawyer(): BelongsTo

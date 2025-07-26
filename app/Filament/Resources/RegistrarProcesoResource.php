@@ -441,16 +441,22 @@ class RegistrarProcesoResource extends Resource
                             ->hidden()
                             ->afterStateUpdated(function (Set $set, Get $get) {
                                 $proceso = Proceso::find($get('proceso_id'));
-                                if ($proceso && $proceso->user) {
-                                    $set('user_tramidator', $proceso->processor->name);
-                                    $set('comision', $proceso->valor_comision);
+                                if ($proceso) {
+                                    $set('user_tramidator', $proceso->processor ? $proceso->processor->name : 'No asignado');
+                                    $set('comision', $proceso->valor_comision ?? 0);
+                                } else {
+                                    $set('user_tramidator', 'No disponible');
+                                    $set('comision', 0);
                                 }
                             })
                             ->afterStateHydrated(function (Set $set, Get $get) {
                                 $proceso = Proceso::find($get('proceso_id'));
-                                if ($proceso && $proceso->user) {
-                                    $set('user_tramidator', $proceso->processor->name);
-                                    $set('comision', $proceso->valor_comision);
+                                if ($proceso) {
+                                    $set('user_tramidator', $proceso->processor ? $proceso->processor->name : 'No asignado');
+                                    $set('comision', $proceso->valor_comision ?? 0);
+                                } else {
+                                    $set('user_tramidator', 'No disponible');
+                                    $set('comision', 0);
                                 }
                             })
                             ->preload(),
